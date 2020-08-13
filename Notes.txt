@@ -9,8 +9,12 @@ v souboru .gitignore uvedeme:
 založíme prázdný soubor webpack.config.js
 založíme GIT a v něm větvi Webpack (se souborem webpack.config.js)
 
+git init
+git add .
+git commit -m "initial"
+git remote add origin https://github.com/kofranek/excel-course
 
-04: instalace WebPack **************************
+04: *****Instalace WebPack **************************
 ************************************************
 inicializace projektu
 
@@ -40,19 +44,22 @@ inicializace projektu
    https://webpack.js.org/concepts/
 
     do webpack.config.js (který máme vytvořen už zminula) napíšeme:
-
-        const path=require('path') //v path.resolve(__dirname) bude cesta k pracovní složce
+            //nastavení cesty:
+        const path=require('path')
         module.exports = {
-            context: path.resolve(__dirname, 'src'), //určení kde je zdroják
-            mode: "development",   //implicitně je mode:production
-            entry: './index.js',  //vstupní bod (když je více vstupů, pak to definujeme v objektu
+                //určení kde je zdroják:
+            context: path.resolve(__dirname, 'src'),
+                //implicitně je mode:production:
+            mode: "development",
+                //vstupní bod:
+            entry: './index.js',
             output: {
-                filename: 'bundle.js',   //název výstupního souboru
-                path: path.resolve(__dirname,'dist')  //určení cesty - vytvořeni složky './dist'
+                     //název výstupního souboru:
+                filename: 'bundle.js',
+                    //určení cesty a vytvoření složky 'dist':
+                path: path.resolve(__dirname,'dist')
             }
         }
-
-
 
 
 6) ve složce src vytvoříme pro testování module.js a v něm
@@ -62,14 +69,14 @@ inicializace projektu
         import './module.js'
         console.log('working!')
 
-6) do package.json doplníme spoštěcí skripty:
+7) do package.json doplníme spoštěcí skripty:
 
       "scripts": {
         "start": "webpack",
         "build": "webpack --mode production"
       }
 
-7) otestujeme
+8) otestujeme
     spustíme v dev módu: npm run start
     v produkčním módu spustíme:
         npn run build
@@ -85,7 +92,7 @@ inicializace projektu
 
 
 
-05: Přidání pluginů **************************
+05: **** Přidání pluginů **************************
 **********************************************
 
 instalujeme webpack pluginy z https://webpack.js.org/plugins/:
@@ -281,4 +288,139 @@ module.exports ={
 
 a otestujeme npm run start /nebo npm run build
 
+06: **** Přidání loaderů **************************
+***************************************************
+
+1. Instalace loaderů CSS a SASS
+
+    (popis loaderů je v dokumentaci Webpack https://webpack.js.org/loaders/)
+
+    npm install sass-loader node-sass --save-dev
+
+    npm install --save-dev css-loader
+
+
+    v webpack.config.js doplníme modul s polem pravidel, kam přidáme také
+    MiniCssExtractPlugin.loader:
+            module: {
+                    rules: [
+                        {
+                            test: /\.s[ac]ss$/i,
+                            use: [
+                                MiniCssExtractPlugin.loader,
+                                'css-loader',
+                                'sass-loader'
+                            ],
+                        }
+                    ]
+                },
+
+    vytvoříme složku ./src/scss
+    a v  ní soubor index.scss
+    a v ně testovací obsah:
+                    $red:blue;
+
+                     body{
+                         background: $red;
+                     }
+
+    v index.js doplníme příslušný dovoz modulu index.scss: import './scss/index.scss'
+    index.js teď vypadá takto:
+
+                import './module.js'
+                import './scss/index.scss'
+
+                console.log('working')
+
+    otestujeme a zjistíme, že loadery pracují - pozadí webové stránky je modré
+
+2. instalace loaderu Babel (https://babeljs.io/)
+
+   na https://babeljs.io nalezneme co napsat do webpack.config.js
+
+
+    module: {
+      rules: [
+        { test: /\.js$/,
+          exclude: /node_modules/,
+          loader: "babel-loader"
+        }
+      ]
+    }
+
+    instalujeme babel-loader a @babel/core:
+
+        npm install --save-dev babel-loader @babel/core
+
+    užitečné je instalovat @babel/preset-env s posledními funkcionalitami js:
+
+        npm install @babel/preset-env --save-dev
+
+    upravíme loader:
+
+                { test: /\.js$/,
+                    exclude: /node_modules/,
+                    loader: {
+                        loader:'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env']
+                        }
+                    }
+                }
+
+    do package.json doplníme:
+        "browserslist": "> 0.25%, not dead"
+
+    v module.js vytvoříme testovací souboor pro Babel:
+
+            console.log('module.js')
+
+            async function start(){
+                return await Promise.resolve('async is working')
+            }
+            start().then(console.log)
+
+       když bychom to nyní složili (npm run dev) vytvoří se příslušné soubory ale
+       v prohlížeči dostaneme chybu:
+            "Uncaught ReferenceError: regeneratorRuntime is not defined"
+       Chybí nám totiž důležitá složka tzv. Babel Polyfill, který zajišťuje zpětnou
+       kompatibilitu.
+
+    Instalace @babel/polyfill
+       viz dokumentace (https://babeljs.io/docs/en/babel-polyfill#docsNav):
+
+        Babel Polyfill přidává do webových prohlížečů podporu pro funkce,
+        které nejsou k dispozici. Babel zkompiluje kód z nedávné verze ecma do té,
+        kterou chceme a zajišťuje zpětnou kompatibilitu.
+
+        Instalace:
+
+            npm install --save @babel/polyfill
+
+    Specifikace vstupního bodu pro '@babel/polyfill' v webpack.config.js:
+
+        v současné době máme vstupní bod - './index.js'
+        Babel chceme používat v hlavním vstupním bodu, proto
+        popis vstupu bude místo jedné hodnoty
+                entry: './index.js'
+        pole s dvěma položkami  vstupů
+                entry: ['@babel/polyfill','./index.js'].
+
+        Popis vstupů tedy v souboru webpack.config.js proro změníme z:
+
+           //vstupní bod:
+           entry: './index.js',
+
+        na:
+            //vstupní bod:
+            entry: ['@babel/polyfill','./index.js']
+
+    Otestování funkčnosti
+
+            npm run start
+            npm run built
+
+        v terminálu prohlížeče běžícíno webové stránky se objeví
+                 asyns is working
+        takže babel funguje
 

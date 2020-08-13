@@ -1,14 +1,19 @@
+//nastavení cesty:
 const path=require('path')
 const {CleanWebpackPlugin} = require('clean-webpack-plugin')
 const HTMLWebpackPlugin = require ('html-webpack-plugin')
 const CopyWebpackPlugin = require ('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 module.exports = {
+    //určení kde je zdroják:
     context: path.resolve(__dirname, 'src'),
     mode: "development",
-    entry: './index.js',
+    //vstupní bod:
+    entry: ['@babel/polyfill','./index.js'],
     output: {
+        //název výstupního souboru:
         filename: 'bundle.[hash].js',
+        //vytvoření výstupní složky 'dist'
         path: path.resolve(__dirname,'dist')
     },
     resolve:{
@@ -33,6 +38,30 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: 'bundle.[hash].css'
         })
-    ]
+    ],
+    module: {
+        rules: [
+            {
+                test: /\.s[ac]ss$/i,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    'sass-loader'
+                ]
+
+            },
+            { test: /\.js$/,
+                exclude: /node_modules/,
+                loader: {
+                    loader:'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
+                }
+            }
+
+        ]
+    }
+
 
 }
