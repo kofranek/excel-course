@@ -554,3 +554,165 @@ a otestujeme npm run start /nebo npm run build
 
     "dev": "cross-env NODE_ENV=development webpack --mode development",
 
+08: **** Nastavení Eslint ***********************************
+*************************************************************
+
+1. Doplnění nastavení pro loader .css a .sass souborů:
+
+      Máme ještě problém s devServerem. Když v souboru index.scss změníme defuinici
+      barvy pozadí (třeba z $red: blue na $red: red) aby se změnila barva, musíme v prohlížeči
+      ručně obnovit stránku. Tento problém souvisí s definicí pluginu pro
+      MiniCssExtractPlugin.loader. Proto:
+
+      v konfiguračním souboru webpack.config.js změníme z
+
+            {
+                test: /\.s[ac]ss$/i,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    'sass-loader'
+                ]
+
+            },
+
+      na:
+            {
+                test: /\.s[ac]ss$/i,
+                use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            hmr: isDev,
+                            reloadAll: true
+                        }
+                    },
+                    'css-loader',
+                    'sass-loader'
+                ]
+            },
+
+      otestujeme - znovu spustíme run npm start - na změny ve zdrojovém
+      souboru index.scss prohlížeč reaguje okamžitě.
+
+3. Nastavení ESlint:
+
+    ESLint (https://eslint.org/) je nástroj pro statickou analýzu kódu
+    pro identifikaci problematických vzorů (patters) nalezených v kódu JavaScript.
+    Byl vytvořen Nicholasem C. Zakasem v roce 2013. Pravidla podle nichž ESLint
+    analyzuje kód jsou konfigurovatelná a přizpůsobitelná, lze definovat a načítat.
+    ESLint se tak stará o kvalitu kódu i o styl kódování. ESLint podporuje současné
+    standardy ECMAScript a také i experimentální syntaxi z konceptů pro budoucí
+    standardy. Eslint analyzuje také i kód JSX nebo TypeScript.
+
+    1. instalace eslint:
+
+            npm i -D eslint
+
+    2. instalace eslint-loaderu
+
+            npm i -D eslint-loader
+
+    3. instalace babel-eslint loaderu (protože pracujeme s i Babelem)
+
+            npm i -D babel-eslint
+
+        případně ustanovíme vše najednou
+
+        npm i -D eslint eslint-loader babel-eslint
+
+    4. modifikace příslušného konfiguračního souboru loaderů
+
+       V webpack.config.js loader .js
+
+       místo:
+
+            {test: /\.js$/,
+                exclude: /node_modules/,
+                use: jsLoaders(),
+                  loader: {
+                    loader:'babel-loader',
+                    options: {
+                         presets: ['@babel/preset-env']
+                     }
+                 }
+            }
+
+       vytvoříme novou funkci jaaLoaders:
+
+            {test: /\.js$/,
+                exclude: /node_modules/,
+                use: jsLoaders(),
+
+            }
+
+
+            const jsLoaders = () =>{
+                const loaders = [{
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env'],
+                        }
+                    }]
+                if (isDev) {
+                    loaders.push('eslint-loader')
+                }
+                return loaders
+            }
+
+    5. vytvoření konfigurčního souboru ve složce ./src: .eslintrc:
+
+        {
+          "parser": "babel-eslint",
+          "env":{
+            "es6": true,
+            "browser": true,
+            "node": true
+          },
+          "rules": {
+          },
+          "extends": ["eslint:recommended", "google"]
+        }
+
+    6. instalace konfiguračního rozšířeni pro google
+       viz: https://github.com/google/eslint-config-google
+
+           npm i -D eslint-config-google
+
+    7. Ve složce ./src vytvoříme (zatím prázdná) soubor:
+
+           .eslintignore
+
+       kam budeme psát názvy souborů, kde necheme aby je ESlint hlídal.
+
+    8. otestování funkčnosti a doplnění pravidel
+
+      v editoru WebStorm nastavíme manuálně ESLint
+
+      vidíme, že ESlint hlídá jednotný styl (označí je chybou),
+      a v konfiguračním souboru .eslintrc doplníme pravidla, které
+      nechceme aby ESlint hlídal:
+
+      "rules": {
+        "semi": "off",
+        "arrow-parens": "off",
+        "linebreak-style": "off",
+        "comma-dangle": "off",
+        "indent": "off",
+        "spaced-comment": "off",
+        "require-jsdoc": "off"
+      },
+
+4. Vymazání nepotřebných testovacích souborů:
+
+    mažeme ./src/module.js
+
+    a v index.js vymažeme odkaz na jeho import (import './module.js')
+
+    vymažeme obsah v souboru ./src/index.scss, který jsme používali k testiování
+
+            $red: blue;
+
+            body {
+                background: $red;
+            }
