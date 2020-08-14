@@ -1,0 +1,720 @@
+https://www.vladilen.dev/products/javascript-senior-frontend
+
+03: instalace GIT *****************************
+***********************************************
+v souboru .gitignore uvedeme:
+        .idea
+        node_modules
+
+založíme prázdný soubor webpack.config.js
+založíme GIT a v něm větvi Webpack (se souborem webpack.config.js)
+
+git init
+git add .
+git commit -m "initial"
+git remote add origin https://github.com/kofranek/excel-course
+
+04: *****Instalace WebPack **************************
+************************************************
+inicializace projektu
+
+1) nainstalujeme npm a node z https://nodejs.org/en/
+    inicializujeme npm:
+        npm init - vytvoří package.json
+
+2)v package.json doplníme "private":true
+
+3) nainstalujeme aktuální verzi webpack z https://webpack.js.org/
+
+        npm install webpack webpack-cli --save-dev
+
+    (popsáno v sekci Documentation/getting started)
+
+    vytvoří se v složka node_modules se soubory
+    a v package,json se objeví   "devDependencies": {
+                                   "webpack": "^4.43.0",
+                                   "webpack-cli": "^3.3.12"
+                                 }
+    vytvoří se také soubor package-lock.json (pro optimalizaci)
+
+4) vytvoření složky src pro zdrojové soubory
+
+5) vytvoření konfiguračního souboru webpack.config.js
+   dokumentace:
+   https://webpack.js.org/concepts/
+
+    do webpack.config.js (který máme vytvořen už zminula) napíšeme:
+            //nastavení cesty:
+        const path=require('path')
+        module.exports = {
+                //určení kde je zdroják:
+            context: path.resolve(__dirname, 'src'),
+                //implicitně je mode:production:
+            mode: "development",
+                //vstupní bod:
+            entry: './index.js',
+            output: {
+                     //název výstupního souboru:
+                filename: 'bundle.js',
+                    //určení cesty a vytvoření složky 'dist':
+                path: path.resolve(__dirname,'dist')
+            }
+        }
+
+
+6) ve složce src vytvoříme pro testování module.js a v něm
+    console.log('module.js')
+
+    a v src/index.js a v něm
+        import './module.js'
+        console.log('working!')
+
+7) do package.json doplníme spoštěcí skripty:
+
+      "scripts": {
+        "start": "webpack",
+        "build": "webpack --mode production"
+      }
+
+8) otestujeme
+    spustíme v dev módu: npm run start
+    v produkčním módu spustíme:
+        npn run build
+
+    vytvoří se složka dist s v ní soubor bundle.js (v produkčním modu bude minimalizovaná)
+
+    otestujeme funkčnost: node dist/bundle.js
+
+8) do .gitignore doplníme dist:
+    .idea
+    node_modules
+    dist
+
+
+
+05: **** Přidání pluginů **************************
+**********************************************
+
+instalujeme webpack pluginy z https://webpack.js.org/plugins/:
+1. plugin pro práci s html:
+    HtmlWebpackPlugin plugin:
+    npm install --save-dev html-webpack-plugin
+2. plugin pro kopírování souborů
+    CopyWebPackPlugin:
+    npm install copy-webpack-plugin --save-dev
+3. pugin pro čištění složky od dřívějších souborů (čistič)
+    CleanWebPackPlugin (hledám goolgem clean-web-pack-plugin)
+    npm install --save-dev clean-webpack-plugin
+
+ve webpack.config.js přidáme hash do výsledného soubour bundle:
+filename: 'bundle.[hash].js'
+
+a přidáme konstantu čističe výsledného souboru:
+const {CleanWebpackPlugin} = require('clean-webpack-plugin')
+
+celý soubor webpack.config.js pak vypadá takto:
+
+const path=require('path')
+const {CleanWebpackPlugin} = require('clean-webpack-plugin')
+module.exports ={
+    context: path.resolve(__dirname,'src'),
+    mode: "development",
+    entry: './index.js',
+    output: {
+        filename: 'bundle.[hash].js',
+        path:path.resolve(__dirname,'dist')
+    },
+    plugins: [
+        new CleanWebpackPlugin()
+    ]
+}
+
+vyzkoušíme že to funguje (npm run start) a ve složce dist je při opakování jen jeden soubor bundle s hashem
+
+do webpack.config.js přidáme konstantu pluginu HTML:
+const HTMLWebpackPlugin = require('html-webpack-plugin')
+
+a také ho dodáme do seznamu pluginů, kde mu zadáme templatku pro html soubor
+        new HTMLWebpackPlugin({
+            template: "index.html"
+        })
+
+celý soubor webpack.config.js pak vypadá takto:
+
+const path=require('path')
+const {CleanWebpackPlugin} = require('clean-webpack-plugin')
+const HTMLWebpackPlugin = require('html-webpack-plugin')
+module.exports ={
+    context: path.resolve(__dirname,'src'),
+    mode: "development",
+    entry: './index.js',
+    output: {
+        filename: 'bundle.[hash].js',
+        path:path.resolve(__dirname,'dist')
+    },
+    plugins: [
+        new CleanWebpackPlugin(),
+        new HTMLWebpackPlugin({
+            template: "index.html"
+        })
+    ]
+}
+
+
+ve složce src vytvoříme index.html:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pure JavaScript Excel</title>
+</head>
+<body>
+    <div id="app" class="container"></div>
+</body>
+</html>
+
+zkusíme jestli to funguje:
+npm run start /nebo npm run build/
+
+ve složce dist se vytvoráří nový bundle a soubor index.html
+
+
+naistalovali jsme také kopírovací pugin "copy-webpack-plugin" podíváme se jak ho použít
+https://webpack.js.org/plugins/copy-webpack-plugin/
+
+doplníme ho do webpack.config.js
+const CopyPlugin = require('copy-webpack-plugin');
+
+a do seznamu pluginú (použijeme ho na kopírování fvalicon ikonky)
+
+        new CopyPlugin({
+            patterns:[
+                {
+                    from: path.resolve(__dirname,'src/favicon.ico'),
+                    to: path.resolve(__dirname,'dist')
+                }
+            ]
+        })
+
+!! pozor, starší verze nepoužívala objekt Patterns ale Array !!!!
+
+flavicon ikonku: flavicon.ico umístíme do složky src
+
+a upravíme index.html:
+(přidáme link):
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pure JavaScript Excel</title>
+    <link rel="shortcut icon" href="favicon.ico">
+</head>
+<body>
+    <div id="app" class="container"></div>
+</body>
+</html>
+
+a zkusíme npn run start
+
+nyní přidáme MiniCssExtractPlugin z:
+https://webpack.js.org/plugins/mini-css-extract-plugin/
+
+npm install --save-dev mini-css-extract-plugin
+
+účel - vynosit vytvořený Css soubor z javascriptu do samostatného souboru
+
+do webpack.config.js přidáme:
+
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+a do pluginů:
+        new MiniCssExtractPlugin({
+            filename: 'bundle.[hash].css'
+        })
+
+Před pluginami ve webpack.cofig.js přidáme
+1. položku řešící implicitní příponu souborů pro příponu .js
+2. a položku aliasů pro zkrácení cesty ke složkám src a src/core:
+
+    resolve:{
+        extensions: ['.js'],
+        alias:{
+            '@': path.resolve(__dirname,'src'),
+            '@core':path.resolve(__dirname,'src/core')
+        }
+    },
+
+ celý webpack.config.js vypadá takto:
+const path=require('path')
+const {CleanWebpackPlugin} = require('clean-webpack-plugin')
+const HTMLWebpackPlugin = require('html-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+module.exports ={
+    context: path.resolve(__dirname,'src'),
+    mode: "development",
+    entry: './index.js',
+    output: {
+        filename: 'bundle.[hash].js',
+        path:path.resolve(__dirname,'dist')
+    },
+    resolve:{
+        extensions: ['.js'],
+        alias:{
+            '@': path.resolve(__dirname,'src'),
+            '@core':path.resolve(__dirname,'src/core')
+        }
+    },
+    plugins: [
+        new CleanWebpackPlugin(),
+        new HTMLWebpackPlugin({
+            template: 'index.html'
+        }),
+        new CopyPlugin({
+            patterns:[
+                {
+                    from: path.resolve(__dirname,'src/favicon.ico'),
+                    to: path.resolve(__dirname,'dist')
+                }
+            ]
+        }),
+        new MiniCssExtractPlugin({
+            filename: 'bundle.[hash].css'
+        })
+    ]
+}
+
+a otestujeme npm run start /nebo npm run build
+
+06: **** Přidání loaderů **************************
+***************************************************
+
+1. Instalace loaderů CSS a SASS
+
+    (popis loaderů je v dokumentaci Webpack https://webpack.js.org/loaders/)
+
+    npm install sass-loader node-sass --save-dev
+
+    npm install --save-dev css-loader
+
+
+    v webpack.config.js doplníme modul s polem pravidel, kam přidáme také
+    MiniCssExtractPlugin.loader:
+            module: {
+                    rules: [
+                        {
+                            test: /\.s[ac]ss$/i,
+                            use: [
+                                MiniCssExtractPlugin.loader,
+                                'css-loader',
+                                'sass-loader'
+                            ],
+                        }
+                    ]
+                },
+
+    vytvoříme složku ./src/scss
+    a v  ní soubor index.scss
+    a v ně testovací obsah:
+                    $red:blue;
+
+                     body{
+                         background: $red;
+                     }
+
+    v index.js doplníme příslušný dovoz modulu index.scss: import './scss/index.scss'
+    index.js teď vypadá takto:
+
+                import './module.js'
+                import './scss/index.scss'
+
+                console.log('working')
+
+    otestujeme a zjistíme, že loadery pracují - pozadí webové stránky je modré
+
+2. instalace loaderu Babel (https://babeljs.io/)
+
+   na https://babeljs.io nalezneme co napsat do webpack.config.js
+
+
+    module: {
+      rules: [
+        { test: /\.js$/,
+          exclude: /node_modules/,
+          loader: "babel-loader"
+        }
+      ]
+    }
+
+    instalujeme babel-loader a @babel/core:
+
+        npm install --save-dev babel-loader @babel/core
+
+    užitečné je instalovat @babel/preset-env s posledními funkcionalitami js:
+
+        npm install @babel/preset-env --save-dev
+
+    upravíme loader:
+
+                { test: /\.js$/,
+                    exclude: /node_modules/,
+                    loader: {
+                        loader:'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env']
+                        }
+                    }
+                }
+
+    do package.json doplníme:
+        "browserslist": "> 0.25%, not dead"
+
+    v module.js vytvoříme testovací souboor pro Babel:
+
+            console.log('module.js')
+
+            async function start(){
+                return await Promise.resolve('async is working')
+            }
+            start().then(console.log)
+
+       když bychom to nyní složili (npm run dev) vytvoří se příslušné soubory ale
+       v prohlížeči dostaneme chybu:
+            "Uncaught ReferenceError: regeneratorRuntime is not defined"
+       Chybí nám totiž důležitá složka tzv. Babel Polyfill, který zajišťuje zpětnou
+       kompatibilitu.
+
+    Instalace @babel/polyfill
+       viz dokumentace (https://babeljs.io/docs/en/babel-polyfill#docsNav):
+
+        Babel Polyfill přidává do webových prohlížečů podporu pro funkce,
+        které nejsou k dispozici. Babel zkompiluje kód z nedávné verze ecma do té,
+        kterou chceme a zajišťuje zpětnou kompatibilitu.
+
+        Instalace:
+
+            npm install --save @babel/polyfill
+
+    Specifikace vstupního bodu pro '@babel/polyfill' v webpack.config.js:
+
+        v současné době máme vstupní bod - './index.js'
+        Babel chceme používat v hlavním vstupním bodu, proto
+        popis vstupu bude místo jedné hodnoty
+                entry: './index.js'
+        pole s dvěma položkami  vstupů
+                entry: ['@babel/polyfill','./index.js'].
+
+        Popis vstupů tedy v souboru webpack.config.js proro změníme z:
+
+           //vstupní bod:
+           entry: './index.js',
+
+        na:
+            //vstupní bod:
+            entry: ['@babel/polyfill','./index.js']
+
+    Otestování funkčnosti
+
+            npm run start
+            npm run built
+
+        v terminálu prohlížeče běžícíno webové stránky se objeví
+                 asyns is working
+        takže babel funguje
+
+07: **** Přidání režimů sestavení **************************
+*************************************************************
+
+1.Kofigurace podle režimu sestavení:
+
+  ve webpack.config.js definujeme:
+
+    const isProd=process.env.NODE_env === 'production'
+    const isDev = !isProd
+
+  instalujeme balíček, který nám umožní určit operační systém v němž pracujeme a správně
+  generovat systémovou proměnnou process.env.MODE_ENV:
+
+    npm i -D cross-env
+
+  v package.json změníme skripty z:
+
+      "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "webpack",
+        "build": "webpack --mode production"
+      },
+
+  na:
+
+      "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "cross-env NODE_ENV=development webpack",
+        "build": "cross-env NODE_ENV=production webpack --mode production"
+      },
+
+    otestujeme - v config.js zadáme"
+
+        console.log('isProd', isProd)
+        console.log('isDev', isDev)
+
+    po npm run start se vše složí a v terminálu se objeví
+        isProd false
+        isDev true
+    po npm run build se vše složí a v terminálu se objeví
+
+    změna pluginu HTML aby v dev verzi byl html soubor minifikován:
+        (v současné vezi webpack to ale není potřeba, v produkční verzi se to
+        minifikuje samo a komentáře se také v produkční verzi odstraňují)
+        v kurzu Vladilena je změna html-pluginu popsána takto:
+
+     změna z:
+            new HTMLWebpackPlugin({template: 'index.html'}),
+     na:
+            new HTMLWebpackPlugin({
+                   template: 'index.html',
+                   minify: {
+                      removeComments: false,
+                      collapseWhiteSpace: isProd
+                      }
+            }),
+
+    Změna názvu souborů v produkční a vývojové verzi (ve vývojové verzi nepotřebujeme hashování):
+
+    ve webpack.config.js zavedeme novou funkci:
+
+        const filename = ext => isDev ? `bundle.${ext}`:`bundle.[hash].${ext}`
+
+    a tu pak využijeme v změnách
+
+    z:
+         output: {
+            //název výstupního souboru:
+            filename: 'bundle.[hash].js',
+    na:
+         output: {
+             //název výstupního souboru:
+             filename: filename( 'js'),
+         ...
+    a z:
+        new MiniCssExtractPlugin({
+            filename: 'bundle.[hash].css'
+        })
+    na:
+        new MiniCssExtractPlugin({
+            filename: filename ('css')
+        })
+
+    otestueme funkčnost:
+
+    po npm run start jsou jména souborů ve složce dist bez hashování:
+         bundle.css
+         bundle.js
+
+2. Přidání "devtool" do webpack-plugin
+
+      Devtool umožňuje vytvářet mapy zdrojů do výsledného kódu, zož usnadní v prohlížeči ladění.
+      V dokumentaci k webpacu je tabulka (https://webpack.js.org/configuration/devtool/),
+      která ukazzuje různé možnosti nástroje devtool.
+
+      Vybereme např možnost 'source-map'.
+
+      Do konfiguračního souboru  zapíšeme novou položku devtool, která se bude zapojovat pouze
+      v režimu vývoje (podle hodnory proměnné isDev):
+
+        devtool: isDev ? 'source-map' : false,
+
+     když sestavíme aplikaci (npm run start) tak ve výsledné složce dist uvidíme,
+     že ke zdrojovým souborům .js a .css se přidaly i mapovací soubory (.map) se
+     zdrojovými kódy
+
+3. Přídání webpack-dev-server
+
+    npm install --save-dev webpack-dev-server
+
+    v package json změníme script "start"  z:
+
+        "start": "cross-env NODE_ENV=development webpack",
+
+    na:
+        "start": "cross-env NODE_ENV=development webpack-dev-server --open",
+
+    do webpack.config,ja doplníme položku:
+
+    devServer: {
+        port: 3000,
+        hot:isDev
+    },
+
+    otestujeme - chodí (reaguje na online změny v source kódu)
+
+4. Přidání skriptu 'dev' do package.json
+
+    "dev": "cross-env NODE_ENV=development webpack --mode development",
+
+08: **** Nastavení Eslint ***********************************
+*************************************************************
+
+1. Doplnění nastavení pro loader .css a .sass souborů:
+
+      Máme ještě problém s devServerem. Když v souboru index.scss změníme defuinici
+      barvy pozadí (třeba z $red: blue na $red: red) aby se změnila barva, musíme v prohlížeči
+      ručně obnovit stránku. Tento problém souvisí s definicí pluginu pro
+      MiniCssExtractPlugin.loader. Proto:
+
+      v konfiguračním souboru webpack.config.js změníme z
+
+            {
+                test: /\.s[ac]ss$/i,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    'sass-loader'
+                ]
+
+            },
+
+      na:
+            {
+                test: /\.s[ac]ss$/i,
+                use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            hmr: isDev,
+                            reloadAll: true
+                        }
+                    },
+                    'css-loader',
+                    'sass-loader'
+                ]
+            },
+
+      otestujeme - znovu spustíme run npm start - na změny ve zdrojovém
+      souboru index.scss prohlížeč reaguje okamžitě.
+
+3. Nastavení ESlint:
+
+    ESLint (https://eslint.org/) je nástroj pro statickou analýzu kódu
+    pro identifikaci problematických vzorů (patters) nalezených v kódu JavaScript.
+    Byl vytvořen Nicholasem C. Zakasem v roce 2013. Pravidla podle nichž ESLint
+    analyzuje kód jsou konfigurovatelná a přizpůsobitelná, lze definovat a načítat.
+    ESLint se tak stará o kvalitu kódu i o styl kódování. ESLint podporuje současné
+    standardy ECMAScript a také i experimentální syntaxi z konceptů pro budoucí
+    standardy. Eslint analyzuje také i kód JSX nebo TypeScript.
+
+    1. instalace eslint:
+
+            npm i -D eslint
+
+    2. instalace eslint-loaderu
+
+            npm i -D eslint-loader
+
+    3. instalace babel-eslint loaderu (protože pracujeme s i Babelem)
+
+            npm i -D babel-eslint
+
+        případně ustanovíme vše najednou
+
+        npm i -D eslint eslint-loader babel-eslint
+
+    4. modifikace příslušného konfiguračního souboru loaderů
+
+       V webpack.config.js loader .js
+
+       místo:
+
+            {test: /\.js$/,
+                exclude: /node_modules/,
+                use: jsLoaders(),
+                  loader: {
+                    loader:'babel-loader',
+                    options: {
+                         presets: ['@babel/preset-env']
+                     }
+                 }
+            }
+
+       vytvoříme novou funkci jaaLoaders:
+
+            {test: /\.js$/,
+                exclude: /node_modules/,
+                use: jsLoaders(),
+
+            }
+
+
+            const jsLoaders = () =>{
+                const loaders = [{
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env'],
+                        }
+                    }]
+                if (isDev) {
+                    loaders.push('eslint-loader')
+                }
+                return loaders
+            }
+
+    5. vytvoření konfigurčního souboru ve složce ./src: .eslintrc:
+
+        {
+          "parser": "babel-eslint",
+          "env":{
+            "es6": true,
+            "browser": true,
+            "node": true
+          },
+          "rules": {
+          },
+          "extends": ["eslint:recommended", "google"]
+        }
+
+    6. instalace konfiguračního rozšířeni pro google
+       viz: https://github.com/google/eslint-config-google
+
+           npm i -D eslint-config-google
+
+    7. Ve složce ./src vytvoříme (zatím prázdná) soubor:
+
+           .eslintignore
+
+       kam budeme psát názvy souborů, kde necheme aby je ESlint hlídal.
+       zatím tam napíšeme:
+       ../Notes.txt
+
+    8. otestování funkčnosti a doplnění pravidel
+
+      v editoru WebStorm nastavíme manuálně ESLint
+
+      vidíme, že ESlint hlídá jednotný styl (označí je chybou),
+      a v konfiguračním souboru .eslintrc doplníme pravidla, které
+      nechceme aby ESlint hlídal:
+
+      "rules": {
+        "semi": "off",
+        "arrow-parens": "off",
+        "linebreak-style": "off",
+        "comma-dangle": "off",
+        "indent": "off",
+        "spaced-comment": "off",
+        "require-jsdoc": "off"
+      },
+
+4. Vymazání nepotřebných testovacích souborů:
+
+    mažeme ./src/module.js
+
+    a v index.js vymažeme odkaz na jeho import (import './module.js')
+
+    vymažeme obsah v souboru ./src/index.scss, který jsme používali k testiování
+
+            $red: blue;
+
+            body {
+                background: $red;
+            }
