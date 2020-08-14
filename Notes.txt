@@ -684,6 +684,8 @@ a otestujeme npm run start /nebo npm run build
            .eslintignore
 
        kam budeme psát názvy souborů, kde necheme aby je ESlint hlídal.
+       zatím tam napíšeme:
+       ../Notes.txt
 
     8. otestování funkčnosti a doplnění pravidel
 
