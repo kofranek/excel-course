@@ -424,3 +424,133 @@ a otestujeme npm run start /nebo npm run build
                  asyns is working
         takže babel funguje
 
+07: **** Přidání režimů sestavení **************************
+*************************************************************
+
+1.Kofigurace podle režimu sestavení:
+
+  ve webpack.config.js definujeme:
+
+    const isProd=process.env.NODE_env === 'production'
+    const isDev = !isProd
+
+  instalujeme balíček, který nám umožní určit operační systém v němž pracujeme a správně
+  generovat systémovou proměnnou process.env.MODE_ENV:
+
+    npm i -D cross-env
+
+  v package.json změníme skripty z:
+
+      "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "webpack",
+        "build": "webpack --mode production"
+      },
+
+  na:
+
+      "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "cross-env NODE_ENV=development webpack",
+        "build": "cross-env NODE_ENV=production webpack --mode production"
+      },
+
+    otestujeme - v config.js zadáme"
+
+        console.log('isProd', isProd)
+        console.log('isDev', isDev)
+
+    po npm run start se vše složí a v terminálu se objeví
+        isProd false
+        isDev true
+    po npm run build se vše složí a v terminálu se objeví
+
+    změna pluginu HTML aby v dev verzi byl html soubor minifikován:
+        (v současné vezi webpack to ale není potřeba, v produkční verzi se to
+        minifikuje samo a komentáře se také v produkční verzi odstraňují)
+        v kurzu Vladilena je změna html-pluginu popsána takto:
+
+     změna z:
+            new HTMLWebpackPlugin({template: 'index.html'}),
+     na:
+            new HTMLWebpackPlugin({
+                   template: 'index.html',
+                   minify: {
+                      removeComments: false,
+                      collapseWhiteSpace: isProd
+                      }
+            }),
+
+    Změna názvu souborů v produkční a vývojové verzi (ve vývojové verzi nepotřebujeme hashování):
+
+    ve webpack.config.js zavedeme novou funkci:
+
+        const filename = ext => isDev ? `bundle.${ext}`:`bundle.[hash].${ext}`
+
+    a tu pak využijeme v změnách
+
+    z:
+         output: {
+            //název výstupního souboru:
+            filename: 'bundle.[hash].js',
+    na:
+         output: {
+             //název výstupního souboru:
+             filename: filename( 'js'),
+         ...
+    a z:
+        new MiniCssExtractPlugin({
+            filename: 'bundle.[hash].css'
+        })
+    na:
+        new MiniCssExtractPlugin({
+            filename: filename ('css')
+        })
+
+    otestueme funkčnost:
+
+    po npm run start jsou jména souborů ve složce dist bez hashování:
+         bundle.css
+         bundle.js
+
+2. Přidání "devtool" do webpack-plugin
+
+      Devtool umožňuje vytvářet mapy zdrojů do výsledného kódu, zož usnadní v prohlížeči ladění.
+      V dokumentaci k webpacu je tabulka (https://webpack.js.org/configuration/devtool/),
+      která ukazzuje různé možnosti nástroje devtool.
+
+      Vybereme např možnost 'source-map'.
+
+      Do konfiguračního souboru  zapíšeme novou položku devtool, která se bude zapojovat pouze
+      v režimu vývoje (podle hodnory proměnné isDev):
+
+        devtool: isDev ? 'source-map' : false,
+
+     když sestavíme aplikaci (npm run start) tak ve výsledné složce dist uvidíme,
+     že ke zdrojovým souborům .js a .css se přidaly i mapovací soubory (.map) se
+     zdrojovými kódy
+
+3. Přídání webpack-dev-server
+
+    npm install --save-dev webpack-dev-server
+
+    v package json změníme script "start"  z:
+
+        "start": "cross-env NODE_ENV=development webpack",
+
+    na:
+        "start": "cross-env NODE_ENV=development webpack-dev-server --open",
+
+    do webpack.config,ja doplníme položku:
+
+    devServer: {
+        port: 3000,
+        hot:isDev
+    },
+
+    otestujeme - chodí (reaguje na online změny v source kódu)
+
+4. Přidání skriptu 'dev' do package.json
+
+    "dev": "cross-env NODE_ENV=development webpack --mode development",
+

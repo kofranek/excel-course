@@ -4,6 +4,15 @@ const {CleanWebpackPlugin} = require('clean-webpack-plugin')
 const HTMLWebpackPlugin = require ('html-webpack-plugin')
 const CopyWebpackPlugin = require ('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
+const isProd=process.env.NODE_env === 'production'
+const isDev = !isProd
+
+console.log('isProd', isProd)
+console.log('isDev', isDev)
+
+const filename = ext => isDev ? `bundle.${ext}`:`bundle.[hash].${ext}`
+
 module.exports = {
     //určení kde je zdroják:
     context: path.resolve(__dirname, 'src'),
@@ -12,7 +21,7 @@ module.exports = {
     entry: ['@babel/polyfill','./index.js'],
     output: {
         //název výstupního souboru:
-        filename: 'bundle.[hash].js',
+        filename: filename( 'js'),
         //vytvoření výstupní složky 'dist'
         path: path.resolve(__dirname,'dist')
     },
@@ -22,6 +31,11 @@ module.exports = {
             '@':path.resolve(__dirname,'src'),
             '@core': path.resolve(__dirname,'src/core')
         }
+    },
+    devtool: isDev ? 'source-map' : false,
+    devServer: {
+        port: 3000,
+        hot:isDev
     },
     plugins: [
         new CleanWebpackPlugin(),
@@ -36,7 +50,7 @@ module.exports = {
             }
         ),
         new MiniCssExtractPlugin({
-            filename: 'bundle.[hash].css'
+            filename: filename ('css')
         })
     ],
     module: {
@@ -44,11 +58,16 @@ module.exports = {
             {
                 test: /\.s[ac]ss$/i,
                 use: [
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            hmr: isDev,
+                            reloadAll: true
+                        }
+                    },
                     'css-loader',
                     'sass-loader'
                 ]
-
             },
             { test: /\.js$/,
                 exclude: /node_modules/,
