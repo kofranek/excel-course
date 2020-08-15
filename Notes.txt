@@ -719,12 +719,13 @@ a otestujeme npm run start /nebo npm run build
                 background: $red;
             }
 
+
+
 GIT  slijeme webpack -> master
 
 
-
-09: **** Kaskádové styly: Vytvoření vizuální struktury ************************
-***************************************************************
+09: **** Kaskádové styly: Vytvoření vizuální struktury *******************
+**************************************************************************
 -----------------------------
 Odkaz na dokumentasi sass:
 https://sass-lang.com/documentation/at-rules/mixin
@@ -821,21 +822,25 @@ https://sass-lang.com/documentation/at-rules/mixin
     (názvy podle BEM- Block - Element - Modifier
     viz http://getbem.com/introduction/)
 
-    <body>
-        <div id="app" class="container"></div>
-        <div class="excel"> </div>
+    body>
+        <!--To je komentář, který v production verzi má být odstraněn-->
+        <div id="app" class="container">
 
-            <div class="excel__header">
-            </div>
+            <div class="excel">
+                <div class="excel__header">
+                </div>
 
-            <div class="excel__toolbar">
-            </div>
+                <div class="excel__toolbar">
+                </div>
 
-            <div class="excel__formula">
-            </div>
+                <div class="excel__formula">
+                </div>
 
-            <div class="excel__table">
+                <div class="excel__table">
+                </div>
+
             </div>
+        </div>
     </body>
 
 7. vytvoření souborů tříd ve složce ./src/scss
@@ -854,4 +859,126 @@ https://sass-lang.com/documentation/at-rules/mixin
         .excel__header{
 
         }
+
+10: **** Kaskádové styly: Styly pro header *******************
+**************************************************************
+
+ 1 pohledáme ikonky
+        https://material.io/resources/icons/?style=baseline
+        https://google.github.io/material-design-icons/
+
+        nalezený odkaz na ikonky vložíme ho index.html
+
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+              rel="stylesheet">
+
+    body>
+        <!--To je komentář, který v production verzi má být odstraněn-->
+        <div id="app" class="container">
+
+ 2. Upravíme index.html:
+
+            <div class="excel">
+                <div class="excel__header">
+                    <input type ="text" class="input" value="Nová tabulka" />
+                    <div>
+                        <div class="button">
+                            <i class="material-icons">delete</i>
+                        </div>
+                        <div class="button">
+                            <i class="material-icons">exit_to_app</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="excel__toolbar">
+                </div>
+
+                <div class="excel__formula">
+                </div>
+
+                <div class="excel__table">
+                </div>
+
+            </div>
+        </div>
+    </body>
+
+ 3 definujeme header.scss (pro hlavičku a v ní pole input a dvě tlačítka):
+
+       @import "variables";
+       @import "mixins";
+
+       .excel__header{
+         position: absolute;
+         top: 0;
+         right: 0;
+         left: 0;
+         height: $header-height;
+         padding: 8px 4px 0;
+         display:flex;
+         justify-content: space-between;
+
+         // temp
+         //background: antiquewhite;
+
+         & .input {
+           margin: 0;
+           padding:  2px 7px;
+           min-width: 1px;
+           color: black;
+           border: 1px solid transparent;
+           border-radius: 2px;
+           height: 20px;
+           font-size: 18px;
+           line-height: 22px;
+           outline:none;
+
+           //pseudoselektory
+           &:hover {
+             border: 1px solid $border-color;
+           }
+           //focus má vyšší prioritu
+           &:focus {
+             border: 2px solid #1a73e8
+           }
+         }
+
+         & .button {
+           @include button(red)
+         }
+
+       }
+
+ 4 Proměnné ukládáme do souboru _variables.scss:
+
+         $header-height:34px;
+         $border-color: #c0c0c0;
+
+ 5 Využijeme mixins.scss (pro zobecnění tlačítek):
+
+        @mixin button ($color: green){
+          height:24px;
+          min-width: 24px;
+          padding:3px;
+          text-align: center;
+          position: relative;
+          display: inline-block;
+          color: rgba(0,0,0, 0.7);
+
+          & i {
+            font-size: 18px;
+          }
+
+          //pseudoselekor active i třída .active
+          &:active, &.active {
+            color: $color;
+          }
+
+          &:hover {
+            background: #eee;
+            cursor: pointer;
+          }
+        }
+
 
