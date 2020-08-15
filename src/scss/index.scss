@@ -1,5 +1,28 @@
-$red: blue;
+//@import url('https://fonts.googleapis.com/css?family=Robotodisplay=swap');
+@import "~normalize.css";
+
+@import "header";
+@import "formula";
+@import "table";
+@import "toolbar";
+
+@font-face {
+  font-family: "Roboto";
+  src: url("../fonts/Roboto-Regular.ttf") format("truetype")
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
-    background: $red;
+  font-family: "Roboto", sans-serif;
+  font-size: 12px
+}
+
+
+.excel {
+  position: relative;
 }

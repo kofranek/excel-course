@@ -718,3 +718,140 @@ a otestujeme npm run start /nebo npm run build
             body {
                 background: $red;
             }
+
+GIT  slijeme webpack -> master
+
+
+
+09: **** Kaskádové styly: Vytvoření vizuální struktury ************************
+***************************************************************
+-----------------------------
+Odkaz na dokumentasi sass:
+https://sass-lang.com/documentation/at-rules/mixin
+----------------------------
+
+1 v GIT vytvoříme novou větev "css-layout"
+
+    git checkout -b "css-layout"
+
+2. instalace balíčku normalise.css
+        https://necolas.github.io/normalize.css/
+
+        npm install normalize.css
+
+   a dovezeme ho do index.scss:
+
+       @import "~normalize.css";
+
+3. instalace nového fontu:
+
+   (nejde jednoduše font importovat to souboru index.scss přes internetový
+   odkaz @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+   3.1 instalace
+        Ve složce './src' vytvoříme novou podsložku 'fonts'
+        a do ní dáme soubory s fontem. Pro nový font máme tedy vytvořenu novu
+        složku './src/fonts'. Do ní zapíšeme zdroják fontu, který chceme
+        použít.
+
+        Vygooglíme Roboto font od googlu a stáhneme si ho,
+        ze zipového souboru si pak vybereme Roboto-Regular.ttf
+        a přeneseme ho do složky './src/fonts'
+
+   3.2. Vytvoření odkazu na nový font:
+        Vytvoříme nový .css soubor 'roboto.css' ve složce 'src/styles'.
+        Obsah souboru './src/styles/roboto.css':
+
+        @font-face {
+          font-family: 'Roboto';
+          src: url("../fonts/Roboto-Regular.ttf") format('truetype');
+        }
+
+        Do základního stylu './src/styles/styles.css' napíšme doplněk,
+        importující skript 'roboto.css' a definice výchozího bezpatkového
+        (sans-serif) fontu 'Roboto' pro celou stránky
+
+
+        @import "roboto.css";
+
+        body{
+            font-family: 'Roboto', sans-serif;
+        }
+
+   3.3.  instalace file-loaderu:
+             npm install -D file-loader
+
+   3.4. Ještě musíme ve webpackconfig.js popsat pravidlo, kterým bude 'file-loader'
+       zpracovávat font:
+
+                {
+                    test:/\.(ttf|woff|woff2|eot)$/,
+                    use: ['file-loader']
+                }
+   3.5 Otestování (dočasně zobrazíme v index.html <h1>Text<h1>
+
+4. Základní stylování v index.scss
+        @import "~normalize.css";
+
+        @import "header";
+        @import "formula";
+        @import "table";
+        @import "toolbar";
+
+        @font-face {
+          font-family: "Roboto";
+          src: url("../fonts/Roboto-Regular.ttf") format("truetype")
+        }
+        *{
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          font-family: "Roboto", sans-serif;
+          font-size: 12px
+        }
+        .excel {
+          position: relative;
+        }
+
+
+5. vytvoření souborů _mixins.scss a _variebles.cscc ve sůožce ./src/scss
+
+6. Základní kostra v templátu index.html:
+    (názvy podle BEM- Block - Element - Modifier
+    viz http://getbem.com/introduction/)
+
+    <body>
+        <div id="app" class="container"></div>
+        <div class="excel"> </div>
+
+            <div class="excel__header">
+            </div>
+
+            <div class="excel__toolbar">
+            </div>
+
+            <div class="excel__formula">
+            </div>
+
+            <div class="excel__table">
+            </div>
+    </body>
+
+7. vytvoření souborů tříd ve složce ./src/scss
+
+    header.scss
+    toolbar.scss
+    formula.scss
+    table.scss
+
+    a v každém z nich definice importů "variables" a "mixins" a deklarace
+    příslušné třídy, např. soubor header.scss vypadá takto:
+
+        @import "variables";
+        @import "mixins";
+
+        .excel__header{
+
+        }
+

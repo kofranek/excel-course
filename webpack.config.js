@@ -12,11 +12,11 @@ const filename = ext => isDev ? `bundle.${ext}`:`bundle.[hash].${ext}`
 
 const jsLoaders = () =>{
     const loaders = [{
-            loader: 'babel-loader',
-            options: {
-                presets: ['@babel/preset-env'],
-            }
-        }]
+        loader: 'babel-loader',
+        options: {
+            presets: ['@babel/preset-env'],
+        }
+    }]
     if (isDev) {
         loaders.push('eslint-loader')
     }
@@ -44,19 +44,19 @@ module.exports = {
     },
     devtool: isDev ? 'source-map' : false,
     devServer: {
-        port: 3000,
+        port: 4200,
         hot: isDev
     },
     plugins: [
         new CleanWebpackPlugin(),
         new HTMLWebpackPlugin({template: 'index.html'}),
         new CopyWebpackPlugin({
-            patterns: [
-                {
-                    from: path.resolve(__dirname, 'src/favicon.ico'),
-                    to: path.resolve(__dirname, 'dist')
-                }
-            ]
+                patterns: [
+                    {
+                        from: path.resolve(__dirname, 'src/favicon.ico'),
+                        to: path.resolve(__dirname, 'dist')
+                    }
+                ]
             }
         ),
         new MiniCssExtractPlugin({
@@ -83,7 +83,12 @@ module.exports = {
                 exclude: /node_modules/,
                 use: jsLoaders(),
 
+            },
+            {
+                test: /\.(ttf|woff|woff2|eot)$/,
+                use: ['file-loader']
             }
+
 
         ]
     }
