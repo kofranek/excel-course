@@ -1068,3 +1068,65 @@ https://sass-lang.com/documentation/at-rules/mixin
             </div>
 
 4. Odzkoušení - zobrazuje se vše OK
+
+
+10: **** Kaskádové styly: Styly pro formula *******************
+***************************************************************
+
+1. Úprava index.html:
+
+       <div class="excel__formula">
+           <div class="info">fx</div>
+           <div class="input" contenteditable="true" spellcheck="false"></div>
+       </div>
+
+1. Úprava formula.scss:
+
+    @import "variables";
+    @import "mixins";
+
+    .excel__formula{
+      position:absolute;
+      left: 0;
+      right: 0;
+      top:$header-height+$toolbar-height;
+      height: $formula-height;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid $border-color;
+
+      .info{
+        font-size: 18px;
+        font-style: italic;
+        text-align: center;
+        border-right: 1px solid $border-color;
+        min-width:$info-cell-width;
+      }
+
+      .input{
+        padding: 4px;
+        font-size: 12px;
+        outline: none;
+        width: 100%;
+        height: 100%;
+        color: black;
+      }
+
+    }
+
+3. Přidání nové proměnné: $formula-height:24px a $info-cell-width v _variable.scss:
+
+        $header-height:34px;
+        $toolbar-height:40px;
+        $formula-height:24px;
+        $info-cell-width:40px;
+        $border-color: #c0c0c0;
+
+4. Doplnění obecného nastavení šedivé barvy pro třídu .excel v index.scss:
+
+    .excel {
+      position: relative;
+      color:#888;
+    }
+
+5. otestování - funguje to ok
