@@ -1130,3 +1130,162 @@ https://sass-lang.com/documentation/at-rules/mixin
     }
 
 5. otestování - funguje to ok
+
+
+11: **** Kaskádové styly: Styly pro table *********************
+***************************************************************
+
+1. úpprava index.html (třída "excel-table"):
+
+            <div class="excel__table">
+                <div class="row">
+                    <div class="row-info">
+                    </div>
+                    <div class="row-data">
+                        <div class="column">
+                            A
+                        </div>
+                        <div class="column">
+                            B
+                        </div>
+                        <div class="column">
+                            C
+                        </div>
+                        <div class="column">
+                            D
+                        </div>
+                        <div class="column">
+                            E
+                        </div>
+                        <div class="column">
+                            F
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="row-info">
+                        1
+                    </div>
+                    <div class="row-data">
+                        <div class="cell selected" contenteditable="true">A1</div>
+                        <div class="cell" contenteditable="true">B2</div>
+                        <div class="cell" contenteditable="true">C3</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="row-info">
+                        2
+                    </div>
+                    <div class="row-data">
+                        <div class="cell">A1</div>
+                        <div class="cell">B2</div>
+                        <div class="cell">C3</div>
+                    </div>
+                </div>
+
+            </div>
+
+2. Úprava table.scss
+
+        @import "variables";
+        @import "mixins";
+
+        .excel__table{
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: $header-height+$toolbar-height+$formula-height;
+          overflow-x: auto;
+          padding-bottom: 2px;
+
+
+          .row{
+            display: flex;
+            flex-direction: row;
+            min-height: 20px;
+            height: $row-height;
+          }
+
+          .row-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: $info-cell-width;
+            height: 100%;
+            border: 1px solid $border-color;
+            background: #f8f9fa;
+            border-top: none;
+
+          }
+
+          .row-data {
+            display: flex;
+
+
+          }
+
+          .column{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f8f9fa;
+            min-width: 40px;
+            width: $cell-width;
+            border: 1px solid $border-color;
+            height: 100%;
+            border-top:none;
+            border-left: none;
+
+          }
+          .cell {
+            min-width: 40px;
+            padding: 5px;
+            width: $cell-width;
+            height: 100%;
+            border: 1px solid #e2e3e3;
+            border-top:none;
+            border-left: none;
+            color: #111 ;
+            white-space: nowrap;
+            outline: none;
+
+            &.selected {
+              border: none;
+              outline: 2px solid #3c74ff;
+              z-index:2;
+
+            }
+          }
+        }
+
+3. Přidání dvou proměnných $row-height:24px a $cell-width:120px do _variables.scss:
+
+
+            $header-height:34px;
+            $toolbar-height:40px;
+            $formula-height:24px;
+            $info-cell-width:40px;
+            $row-height:24px;
+            $cell-width:120px;
+            $border-color: #c0c0c0;
+
+4. Úprava třídy .excel v index.scss (dodáme height, max-width a font-size):
+
+    původně:
+        .excel {
+          position: relative;
+          color:#888;
+        }
+
+    nyní:
+        .excel {
+          position: relative;
+          color:#888;
+          height:100%;
+          max-width: 100%;
+          font-size:0.8rem;
+        }
+
+5. Otestujeme - funguje i horizondální scrolování
+
+
