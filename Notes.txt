@@ -1467,6 +1467,7 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
      padding: 0;
    }
 
-6. otestováním zjištujeme že to chodí tak jak jsme to chtěli nastylizovat
+6. otestováním zjištujeme že to chodí tak jak jsme to chtěli
+   nastylizovat
 
 
