@@ -981,4 +981,90 @@ https://sass-lang.com/documentation/at-rules/mixin
           }
         }
 
+11: **** Kaskádové styly: Styly pro toolbar *******************
+**************************************************************
 
+
+1´. Úprava toolbar.scss:
+
+        @import "variables";
+        @import "mixins";
+
+        .excel__header{
+          position: absolute;
+          top: 0;
+          right: 0;
+          left: 0;
+          height: $header-height;
+          padding: 8px 4px 0;
+          display:flex;
+          justify-content: space-between;
+
+          //temp
+          //background: antiquewhite;
+
+          & .input {
+            margin: 0;
+            padding:  2px 7px;
+            min-width: 1px;
+            color: black;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            height: 20px;
+            font-size: 18px;
+            line-height: 22px;
+            outline:none;
+
+            //pseudoselektory
+            &:hover {
+              border: 1px solid $border-color;
+            }
+
+            //focus má vyšší prioritu
+            &:focus {
+              border: 2px solid #1a73e8
+            }
+
+
+          }
+
+          & .button {
+            @include button(red)
+          }
+
+        }
+
+2. Doplnění proměnné $toolbar-height do _varieblas.scss:
+
+    $header-height:34px;
+    $toolbar-height:40px;
+    $border-color: #c0c0c0;
+
+
+3. Úprava index.html
+    hledáme ikonky:
+    https://google.github.io/material-design-icons/
+    (Getting icons/Browsing and downloading individual icons/material icon library)
+
+            <div class="excel__toolbar">
+                <div class="button">
+                    <i class="material-icons">format_align_left</i>
+                </div>
+                <div class="button">
+                    <i class="material-icons">format_align_center</i>
+                </div>
+                <div class="button">
+                    <i class="material-icons">format_align_right</i>
+                </div>
+                   <div class="button">
+                       <i class="material-icons">format_bold</i>
+                   </div>
+                <div class="button">
+                    <i class="material-icons">format_italic</i>
+                </div>
+                <div class="button">
+                    <i class="material-icons">format_underlined</i>
+                </div>
+            </div>
+
+4. Odzkoušení - zobrazuje se vše OK
