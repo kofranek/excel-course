@@ -1288,4 +1288,185 @@ https://sass-lang.com/documentation/at-rules/mixin
 
 5. Otestujeme - funguje i horizondální scrolování
 
+12: **** Kaskádové styly: Styly pro hlavní stránku **************
+*****************************************************************
+
+ve složce ./src vytvoříme novou složku ./src/assets, kde vytvoříme nový soubor
+excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme stylování)
+
+1. v index.hrml vyhodíme vše uvnitř <div id="app">:
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Pure JavaScript Excel</title>
+            <link rel="shortout icon" href="favicon.ico">
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+                  rel="stylesheet">
+        </head>
+        <body>
+            <div id="app" class="container">
+
+            </div>
+        </body>
+        </html>
+
+
+       Můžeme vyhodit i popis class="container", k tomu se vrátíme později při programování
+
+2. vytvoříme novou šablonu v index.html:
+
+        <body>
+            <div id="app">
+                <div class="db">
+                    <div class="db__header">
+                        <h1>Excel Dashboard</h1>
+                    </div>
+                    <div class="db__new">
+                        <div class="db__view">
+                            <a href="#" class="db__create">
+                                Nová <br/> Tabulka
+                            </a>
+                        </div>
+                    </div>
+                    <div class="db__table db_view">
+
+                        <div class="db__list-header">
+                            <span>Název</span>
+                            <span>Datum vytvoření</span>
+                        </div>
+
+                        <ul class="db__list">
+                            <li class="db__record">
+                                <a href="#">Tabulka číslo 1</a>
+                                <strong>12.06.2020</strong>
+                            </li>
+
+                            <li class="db__record">
+                                <a href="#">Tabulka číslo 2</a>
+                                <strong>12.06.2020</strong>
+                            </li>
+
+
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+        </body>
+
+3. Třídy dashboardu popíšeme v souboru dashboard.scss:
+
+        @import "variables";
+        @import "mixins";
+
+        .db{
+          //to je stejné jako .db__header
+          &__header {
+            position:fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: $db-header-height;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            box-shadow: 0 2px 5px 2px rgba(60, 64, 67, 0.15);
+            z-index:1000;
+          }
+
+          &__new {
+            margin-top: $db-header-height;
+            padding: 1.5rem;
+            background: #dadce0;
+          }
+
+          &__create {
+            width: 160px;
+            height: 160px;
+            background: #fff;
+            border-radius: 4px;
+            border: 1px solid #dadce0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            text-decoration: none;
+            color:#000;
+            text-align: center;
+
+            &:hover{
+              cursor: pointer;
+              color: green;
+              border-color: green;
+            }
+          }
+
+          &__view {
+            max-width:1000px;
+            margin: 0 auto;
+          }
+
+          &__table {
+            padding: 1rem;
+          }
+
+          &__list-header {
+            display: flex;
+            justify-content: space-between;
+            color: #202124;
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 10px;
+            padding: 0 12px;
+          }
+
+          &__list {
+            @include clear-list();
+          }
+
+          &__record {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px 12px 16px;
+            margin-bottom: 10px;
+
+            &:hover {
+              background: #e6f4ea;
+              border-radius: 25px;
+            }
+
+            a {
+              text-decoration: none;
+              cursor: pointer;
+              color: #202124;
+              font-size: 14px;
+
+              &:hover{
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+
+4. zde využíváme novou proměnnou $db-header-height, kterou
+  uložíme do souboru _variables.scss:
+
+
+    $db-header-height: 64px;
+
+5. dále v souboru dashboard.scss využijeme nový mixin clarlist,
+   který definujeme v souboru _mixins.scss:
+
+   @mixin clear-list() {
+     list-style: none;
+     margin: 0;
+     padding: 0;
+   }
+
+6. otestováním zjištujeme že to chodí tak jak jsme to chtěli nastylizovat
+
 
