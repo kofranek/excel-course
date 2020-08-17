@@ -1471,3 +1471,17 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
    nastylizovat
 
 
+13: **** Kaskádové styly: Uspořádání souborů a práce s GIT ****
+*****************************************************************
+
+1. soubor index.html zkopírujeme do složky ./src/assets a
+   přejmenujeme ho na dashboard.html
+
+   do budoucna je asi vhodné vytvořit do složky assets jeden statický
+   scss soubor s vytvořenými styly aby dashboard.html a dříve uložený
+   excel.html mohlo s nimi pracovat
+
+
+2. vytvoříme závěrečný commit a push
+
+
