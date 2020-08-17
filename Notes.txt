@@ -718,3 +718,777 @@ a otestujeme npm run start /nebo npm run build
             body {
                 background: $red;
             }
+
+
+
+GIT  slijeme webpack -> master
+
+
+09: **** Kaskádové styly: Vytvoření vizuální struktury *******************
+**************************************************************************
+-----------------------------
+Odkaz na dokumentasi sass:
+https://sass-lang.com/documentation/at-rules/mixin
+----------------------------
+
+1 v GIT vytvoříme novou větev "css-layout"
+
+    git checkout -b "css-layout"
+
+2. instalace balíčku normalise.css
+        https://necolas.github.io/normalize.css/
+
+        npm install normalize.css
+
+   a dovezeme ho do index.scss:
+
+       @import "~normalize.css";
+
+3. instalace nového fontu:
+
+   (nejde jednoduše font importovat to souboru index.scss přes internetový
+   odkaz @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+   3.1 instalace
+        Ve složce './src' vytvoříme novou podsložku 'fonts'
+        a do ní dáme soubory s fontem. Pro nový font máme tedy vytvořenu novu
+        složku './src/fonts'. Do ní zapíšeme zdroják fontu, který chceme
+        použít.
+
+        Vygooglíme Roboto font od googlu a stáhneme si ho,
+        ze zipového souboru si pak vybereme Roboto-Regular.ttf
+        a přeneseme ho do složky './src/fonts'
+
+   3.2. Vytvoření odkazu na nový font:
+        Vytvoříme nový .css soubor 'roboto.css' ve složce 'src/styles'.
+        Obsah souboru './src/styles/roboto.css':
+
+        @font-face {
+          font-family: 'Roboto';
+          src: url("../fonts/Roboto-Regular.ttf") format('truetype');
+        }
+
+        Do základního stylu './src/styles/styles.css' napíšme doplněk,
+        importující skript 'roboto.css' a definice výchozího bezpatkového
+        (sans-serif) fontu 'Roboto' pro celou stránky
+
+
+        @import "roboto.css";
+
+        body{
+            font-family: 'Roboto', sans-serif;
+        }
+
+   3.3.  instalace file-loaderu:
+             npm install -D file-loader
+
+   3.4. Ještě musíme ve webpackconfig.js popsat pravidlo, kterým bude 'file-loader'
+       zpracovávat font:
+
+                {
+                    test:/\.(ttf|woff|woff2|eot)$/,
+                    use: ['file-loader']
+                }
+   3.5 Otestování (dočasně zobrazíme v index.html <h1>Text<h1>
+
+4. Základní stylování v index.scss
+        @import "~normalize.css";
+
+        @import "header";
+        @import "formula";
+        @import "table";
+        @import "toolbar";
+
+        @font-face {
+          font-family: "Roboto";
+          src: url("../fonts/Roboto-Regular.ttf") format("truetype")
+        }
+        *{
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          font-family: "Roboto", sans-serif;
+          font-size: 12px
+        }
+        .excel {
+          position: relative;
+        }
+
+
+5. vytvoření souborů _mixins.scss a _variebles.cscc ve sůožce ./src/scss
+
+6. Základní kostra v templátu index.html:
+    (názvy podle BEM- Block - Element - Modifier
+    viz http://getbem.com/introduction/)
+
+    body>
+        <!--To je komentář, který v production verzi má být odstraněn-->
+        <div id="app" class="container">
+
+            <div class="excel">
+                <div class="excel__header">
+                </div>
+
+                <div class="excel__toolbar">
+                </div>
+
+                <div class="excel__formula">
+                </div>
+
+                <div class="excel__table">
+                </div>
+
+            </div>
+        </div>
+    </body>
+
+7. vytvoření souborů tříd ve složce ./src/scss
+
+    header.scss
+    toolbar.scss
+    formula.scss
+    table.scss
+
+    a v každém z nich definice importů "variables" a "mixins" a deklarace
+    příslušné třídy, např. soubor header.scss vypadá takto:
+
+        @import "variables";
+        @import "mixins";
+
+        .excel__header{
+
+        }
+
+10: **** Kaskádové styly: Styly pro header *******************
+**************************************************************
+
+ 1 pohledáme ikonky
+        https://material.io/resources/icons/?style=baseline
+        https://google.github.io/material-design-icons/
+
+        nalezený odkaz na ikonky vložíme ho index.html
+
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+              rel="stylesheet">
+
+    body>
+        <!--To je komentář, který v production verzi má být odstraněn-->
+        <div id="app" class="container">
+
+ 2. Upravíme index.html:
+
+            <div class="excel">
+                <div class="excel__header">
+                    <input type ="text" class="input" value="Nová tabulka" />
+                    <div>
+                        <div class="button">
+                            <i class="material-icons">delete</i>
+                        </div>
+                        <div class="button">
+                            <i class="material-icons">exit_to_app</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="excel__toolbar">
+                </div>
+
+                <div class="excel__formula">
+                </div>
+
+                <div class="excel__table">
+                </div>
+
+            </div>
+        </div>
+    </body>
+
+ 3 definujeme header.scss (pro hlavičku a v ní pole input a dvě tlačítka):
+
+       @import "variables";
+       @import "mixins";
+
+       .excel__header{
+         position: absolute;
+         top: 0;
+         right: 0;
+         left: 0;
+         height: $header-height;
+         padding: 8px 4px 0;
+         display:flex;
+         justify-content: space-between;
+
+         // temp
+         //background: antiquewhite;
+
+         & .input {
+           margin: 0;
+           padding:  2px 7px;
+           min-width: 1px;
+           color: black;
+           border: 1px solid transparent;
+           border-radius: 2px;
+           height: 20px;
+           font-size: 18px;
+           line-height: 22px;
+           outline:none;
+
+           //pseudoselektory
+           &:hover {
+             border: 1px solid $border-color;
+           }
+           //focus má vyšší prioritu
+           &:focus {
+             border: 2px solid #1a73e8
+           }
+         }
+
+         & .button {
+           @include button(red)
+         }
+
+       }
+
+ 4 Proměnné ukládáme do souboru _variables.scss:
+
+         $header-height:34px;
+         $border-color: #c0c0c0;
+
+ 5 Využijeme mixins.scss (pro zobecnění tlačítek):
+
+        @mixin button ($color: green){
+          height:24px;
+          min-width: 24px;
+          padding:3px;
+          text-align: center;
+          position: relative;
+          display: inline-block;
+          color: rgba(0,0,0, 0.7);
+
+          & i {
+            font-size: 18px;
+          }
+
+          //pseudoselekor active i třída .active
+          &:active, &.active {
+            color: $color;
+          }
+
+          &:hover {
+            background: #eee;
+            cursor: pointer;
+          }
+        }
+
+11: **** Kaskádové styly: Styly pro toolbar *******************
+**************************************************************
+
+
+1´. Úprava toolbar.scss:
+
+        @import "variables";
+        @import "mixins";
+
+        .excel__header{
+          position: absolute;
+          top: 0;
+          right: 0;
+          left: 0;
+          height: $header-height;
+          padding: 8px 4px 0;
+          display:flex;
+          justify-content: space-between;
+
+          //temp
+          //background: antiquewhite;
+
+          & .input {
+            margin: 0;
+            padding:  2px 7px;
+            min-width: 1px;
+            color: black;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            height: 20px;
+            font-size: 18px;
+            line-height: 22px;
+            outline:none;
+
+            //pseudoselektory
+            &:hover {
+              border: 1px solid $border-color;
+            }
+
+            //focus má vyšší prioritu
+            &:focus {
+              border: 2px solid #1a73e8
+            }
+
+
+          }
+
+          & .button {
+            @include button(red)
+          }
+
+        }
+
+2. Doplnění proměnné $toolbar-height do _varieblas.scss:
+
+    $header-height:34px;
+    $toolbar-height:40px;
+    $border-color: #c0c0c0;
+
+
+3. Úprava index.html
+    hledáme ikonky:
+    https://google.github.io/material-design-icons/
+    (Getting icons/Browsing and downloading individual icons/material icon library)
+
+            <div class="excel__toolbar">
+                <div class="button">
+                    <i class="material-icons">format_align_left</i>
+                </div>
+                <div class="button">
+                    <i class="material-icons">format_align_center</i>
+                </div>
+                <div class="button">
+                    <i class="material-icons">format_align_right</i>
+                </div>
+                   <div class="button">
+                       <i class="material-icons">format_bold</i>
+                   </div>
+                <div class="button">
+                    <i class="material-icons">format_italic</i>
+                </div>
+                <div class="button">
+                    <i class="material-icons">format_underlined</i>
+                </div>
+            </div>
+
+4. Odzkoušení - zobrazuje se vše OK
+
+
+10: **** Kaskádové styly: Styly pro formula *******************
+***************************************************************
+
+1. Úprava index.html:
+
+       <div class="excel__formula">
+           <div class="info">fx</div>
+           <div class="input" contenteditable="true" spellcheck="false"></div>
+       </div>
+
+1. Úprava formula.scss:
+
+    @import "variables";
+    @import "mixins";
+
+    .excel__formula{
+      position:absolute;
+      left: 0;
+      right: 0;
+      top:$header-height+$toolbar-height;
+      height: $formula-height;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid $border-color;
+
+      .info{
+        font-size: 18px;
+        font-style: italic;
+        text-align: center;
+        border-right: 1px solid $border-color;
+        min-width:$info-cell-width;
+      }
+
+      .input{
+        padding: 4px;
+        font-size: 12px;
+        outline: none;
+        width: 100%;
+        height: 100%;
+        color: black;
+      }
+
+    }
+
+3. Přidání nové proměnné: $formula-height:24px a $info-cell-width v _variable.scss:
+
+        $header-height:34px;
+        $toolbar-height:40px;
+        $formula-height:24px;
+        $info-cell-width:40px;
+        $border-color: #c0c0c0;
+
+4. Doplnění obecného nastavení šedivé barvy pro třídu .excel v index.scss:
+
+    .excel {
+      position: relative;
+      color:#888;
+    }
+
+5. otestování - funguje to ok
+
+
+11: **** Kaskádové styly: Styly pro table *********************
+***************************************************************
+
+1. úpprava index.html (třída "excel-table"):
+
+            <div class="excel__table">
+                <div class="row">
+                    <div class="row-info">
+                    </div>
+                    <div class="row-data">
+                        <div class="column">
+                            A
+                        </div>
+                        <div class="column">
+                            B
+                        </div>
+                        <div class="column">
+                            C
+                        </div>
+                        <div class="column">
+                            D
+                        </div>
+                        <div class="column">
+                            E
+                        </div>
+                        <div class="column">
+                            F
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="row-info">
+                        1
+                    </div>
+                    <div class="row-data">
+                        <div class="cell selected" contenteditable="true">A1</div>
+                        <div class="cell" contenteditable="true">B2</div>
+                        <div class="cell" contenteditable="true">C3</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="row-info">
+                        2
+                    </div>
+                    <div class="row-data">
+                        <div class="cell">A1</div>
+                        <div class="cell">B2</div>
+                        <div class="cell">C3</div>
+                    </div>
+                </div>
+
+            </div>
+
+2. Úprava table.scss
+
+        @import "variables";
+        @import "mixins";
+
+        .excel__table{
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: $header-height+$toolbar-height+$formula-height;
+          overflow-x: auto;
+          padding-bottom: 2px;
+
+
+          .row{
+            display: flex;
+            flex-direction: row;
+            min-height: 20px;
+            height: $row-height;
+          }
+
+          .row-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: $info-cell-width;
+            height: 100%;
+            border: 1px solid $border-color;
+            background: #f8f9fa;
+            border-top: none;
+
+          }
+
+          .row-data {
+            display: flex;
+
+
+          }
+
+          .column{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f8f9fa;
+            min-width: 40px;
+            width: $cell-width;
+            border: 1px solid $border-color;
+            height: 100%;
+            border-top:none;
+            border-left: none;
+
+          }
+          .cell {
+            min-width: 40px;
+            padding: 5px;
+            width: $cell-width;
+            height: 100%;
+            border: 1px solid #e2e3e3;
+            border-top:none;
+            border-left: none;
+            color: #111 ;
+            white-space: nowrap;
+            outline: none;
+
+            &.selected {
+              border: none;
+              outline: 2px solid #3c74ff;
+              z-index:2;
+
+            }
+          }
+        }
+
+3. Přidání dvou proměnných $row-height:24px a $cell-width:120px do _variables.scss:
+
+
+            $header-height:34px;
+            $toolbar-height:40px;
+            $formula-height:24px;
+            $info-cell-width:40px;
+            $row-height:24px;
+            $cell-width:120px;
+            $border-color: #c0c0c0;
+
+4. Úprava třídy .excel v index.scss (dodáme height, max-width a font-size):
+
+    původně:
+        .excel {
+          position: relative;
+          color:#888;
+        }
+
+    nyní:
+        .excel {
+          position: relative;
+          color:#888;
+          height:100%;
+          max-width: 100%;
+          font-size:0.8rem;
+        }
+
+5. Otestujeme - funguje i horizondální scrolování
+
+12: **** Kaskádové styly: Styly pro hlavní stránku **************
+*****************************************************************
+
+ve složce ./src vytvoříme novou složku ./src/assets, kde vytvoříme nový soubor
+excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme stylování)
+
+1. v index.hrml vyhodíme vše uvnitř <div id="app">:
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Pure JavaScript Excel</title>
+            <link rel="shortout icon" href="favicon.ico">
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+                  rel="stylesheet">
+        </head>
+        <body>
+            <div id="app" class="container">
+
+            </div>
+        </body>
+        </html>
+
+
+       Můžeme vyhodit i popis class="container", k tomu se vrátíme později při programování
+
+2. vytvoříme novou šablonu v index.html:
+
+        <body>
+            <div id="app">
+                <div class="db">
+                    <div class="db__header">
+                        <h1>Excel Dashboard</h1>
+                    </div>
+                    <div class="db__new">
+                        <div class="db__view">
+                            <a href="#" class="db__create">
+                                Nová <br/> Tabulka
+                            </a>
+                        </div>
+                    </div>
+                    <div class="db__table db_view">
+
+                        <div class="db__list-header">
+                            <span>Název</span>
+                            <span>Datum vytvoření</span>
+                        </div>
+
+                        <ul class="db__list">
+                            <li class="db__record">
+                                <a href="#">Tabulka číslo 1</a>
+                                <strong>12.06.2020</strong>
+                            </li>
+
+                            <li class="db__record">
+                                <a href="#">Tabulka číslo 2</a>
+                                <strong>12.06.2020</strong>
+                            </li>
+
+
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+        </body>
+
+3. Třídy dashboardu popíšeme v souboru dashboard.scss:
+
+        @import "variables";
+        @import "mixins";
+
+        .db{
+          //to je stejné jako .db__header
+          &__header {
+            position:fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: $db-header-height;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            box-shadow: 0 2px 5px 2px rgba(60, 64, 67, 0.15);
+            z-index:1000;
+          }
+
+          &__new {
+            margin-top: $db-header-height;
+            padding: 1.5rem;
+            background: #dadce0;
+          }
+
+          &__create {
+            width: 160px;
+            height: 160px;
+            background: #fff;
+            border-radius: 4px;
+            border: 1px solid #dadce0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            text-decoration: none;
+            color:#000;
+            text-align: center;
+
+            &:hover{
+              cursor: pointer;
+              color: green;
+              border-color: green;
+            }
+          }
+
+          &__view {
+            max-width:1000px;
+            margin: 0 auto;
+          }
+
+          &__table {
+            padding: 1rem;
+          }
+
+          &__list-header {
+            display: flex;
+            justify-content: space-between;
+            color: #202124;
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 10px;
+            padding: 0 12px;
+          }
+
+          &__list {
+            @include clear-list();
+          }
+
+          &__record {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px 12px 16px;
+            margin-bottom: 10px;
+
+            &:hover {
+              background: #e6f4ea;
+              border-radius: 25px;
+            }
+
+            a {
+              text-decoration: none;
+              cursor: pointer;
+              color: #202124;
+              font-size: 14px;
+
+              &:hover{
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+
+4. zde využíváme novou proměnnou $db-header-height, kterou
+  uložíme do souboru _variables.scss:
+
+
+    $db-header-height: 64px;
+
+5. dále v souboru dashboard.scss využijeme nový mixin clarlist,
+   který definujeme v souboru _mixins.scss:
+
+   @mixin clear-list() {
+     list-style: none;
+     margin: 0;
+     padding: 0;
+   }
+
+6. otestováním zjištujeme že to chodí tak jak jsme to chtěli
+   nastylizovat
+
+
+13: **** Kaskádové styly: Uspořádání souborů a práce s GIT ****
+*****************************************************************
+
+1. soubor index.html zkopírujeme do složky ./src/assets a
+   přejmenujeme ho na dashboard.html
+
+   do budoucna je asi vhodné vytvořit do složky assets jeden statický
+   scss soubor s vytvořenými styly aby dashboard.html a dříve uložený
+   excel.html mohlo s nimi pracovat
+
+   v index.html necháme jen prázdný <div id="app">
+
+   <body>
+       <div id="app"></div>
+   </body>
+   </html>
+
+
+2. vytvoříme závěrečný commit a push
+
+
