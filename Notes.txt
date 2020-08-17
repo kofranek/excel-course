@@ -1481,6 +1481,13 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
    scss soubor s vytvořenými styly aby dashboard.html a dříve uložený
    excel.html mohlo s nimi pracovat
 
+   v index.html necháme jen prázdný <div id="app">
+
+   <body>
+       <div id="app"></div>
+   </body>
+   </html>
+
 
 2. vytvoříme závěrečný commit a push
 
