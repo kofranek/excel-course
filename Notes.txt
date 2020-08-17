@@ -1596,3 +1596,61 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
        v položce components[] bude mít odkaz na instance podtříd ExcelCOmponents
 
 
+15: **** Framework: Tvorba HTML šablonek komponent **************************************
+*****************************************************************************************
+
+1 základní vstup index.js - vytvoříme instanci třídy Excel a zavoláme její metodu render
+
+        import './scss/index.scss'
+        import {Excel} from '@/components/excel/Excel';
+        import {Header} from '@/components/header/Header';
+        import {Toolbar} from '@/components/toolbar/Toolbar';
+        import {Formula} from '@/components/formula/Formula';
+        import {Table} from '@/components/table/Table';
+
+        const excel = new Excel('#app', {
+             components: [Header, Toolbar, Formula, Table]
+        })
+
+        excel.render()
+
+2 V každé třídě Header, Formula, Table, Toolbar přepíšeme metodu toHTML():
+
+    např v Header.js:
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+        export class Header extends ExcelComponent {
+            toHTML() {
+                return '<h1>Header</h1>'
+            }
+        }
+
+3. Specifikujeme vykreslování HTML šablonek v třídě Excel, defiujeme
+   metodu render (pracující s 'DOMem') vykreslující šablonky do HTML souboru:
+
+        export class Excel {
+            constructor(selector, options) {
+                this.$el = document.querySelector(selector)
+                this.components = options.components || []
+            }
+
+            getRoot() {
+                const $root = document.createElement('div')
+                this.components.forEach(Component => {
+                    const component = new Component()
+                    $root.insertAdjacentHTML('beforeend', component.toHTML())
+                })
+                return $root
+            }
+
+            render() {
+                //'afterbegin','afterend','beforebegin','beforeend'
+                //this.$el.insertAdjacentHTML('beforebegin', '<strong>test</strong>');
+
+                // const node=document.createElement('h1')
+                // node.textContent='TEXT'
+                // this.$el.append(node)
+                this.getRoot()
+                this.$el.append(this.getRoot())
+            }
+        }
