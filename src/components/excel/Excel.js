@@ -13,7 +13,6 @@ export class Excel {
         return $root
     }
 
-
     render() {
         //'afterbegin','afterend','beforebegin','beforeend'
         //this.$el.insertAdjacentHTML('beforebegin', '<strong>test</strong>');
