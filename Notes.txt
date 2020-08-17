@@ -1471,7 +1471,7 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
    nastylizovat
 
 
-13: **** Kaskádové styly: Uspořádání souborů a práce s GIT ****
+13: **** Kaskádové styly: Uspořádání souborů a práce s GIT ******
 *****************************************************************
 
 1. soubor index.html zkopírujeme do složky ./src/assets a
@@ -1490,5 +1490,109 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
 
 
 2. vytvoříme závěrečný commit a push
+
+14: **** Framework: Plánování a vytvoření základní OOP struktury *********************
+**************************************************************************************
+
+1. vytvoříme novou větvi GIT a přepneme se do ní
+
+    přepneme se na hlavní větev:
+
+        git checkout master
+
+    natáhneme vše z ní:
+
+        git pull
+
+    vytvoříme novou větev "framework-start":
+
+        git checkout-b "framework-start"
+
+
+2. Základní schema OOP struktury aplikace:
+    https://viewer.diagrams.net/?highlight=0000ff&edit=_blank&layers=1&nav=1#G1AOE9L3Q-qYlrDVDm2qahjgq60sSS5yuN
+    https://drive.google.com/file/d/1wsYWiEdPMsi785Vd38r-guqaoNHexvTb/view?usp=sharing
+
+3. Vytvoříme složku ./core a v ní DomListener.js a ExcellComponent.js:
+    DomListener.js:
+               export class DomListener {
+
+               }
+
+    ExcelComponent.js:
+            import {DomListener} from '@core/DomListener';
+
+            export class ExcelComponent extends DomListener {
+                //vrací šablonu komponenty
+                toHTML() {
+                    return ''
+                }
+            }
+4. Vytvoříme složku  ./src/components a v ní podlsožky a soubory tříd:
+
+   ./src/components/header/Header.js:
+           import {ExcelComponent} from '@core/ExcelComponent';
+
+           export class Header extends ExcelComponent {
+
+           }
+
+   ./src/components/toolbar/Toolbar.js:
+            import {ExcelComponent} from '@core/ExcelComponent';
+
+            export class Toolbar extends ExcelComponent {
+
+            }
+
+
+   ./src/components/formula/Formula.js:
+            import {ExcelComponent} from '@core/ExcelComponent';
+
+            export class Formula extends ExcelComponent {
+
+            }
+
+
+   ./src/components/table/Table.js:
+            import {ExcelComponent} from '@core/ExcelComponent';
+
+            export class Table extends ExcelComponent {
+
+            }
+
+
+5. V hlavním vstuupním souboru index.js vytvoříme instanci třídy Excel, v parameterch
+   budeme hledat třídu ''#app' v souboru .html a jako seznam komponent dáme objekt
+   s prázdným polem:
+
+        import './scss/index.scss'
+        import {Excel} from '@/components/excel/Excel';
+
+        const excel=new Excel('#app', {
+            components: []
+        })
+
+        console.log('Excel', excel);
+
+    Na výstupu v terminálu prohlížeče dostaneme:
+        Excel{$el: NodeList(1), components: Array(0)}
+        $el: NodeList(1)
+          0: div#app
+          length: 1
+        components: []
+
+
+6. Shrnutí: vytvořili jsme základni strukturu tříd aplikace:
+
+    [
+    class Header,
+    class Toolbar,
+    class Formula,
+    class Table,
+    ]=extends=> class ExcelComponent =extends=> class DomListener
+
+    class Excel:
+       v položce $el bude mít odkaz na třídu DOM
+       v položce components[] bude mít odkaz na instance podtříd ExcelCOmponents
 
 
