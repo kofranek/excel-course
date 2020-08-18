@@ -1654,3 +1654,373 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
                 this.$el.append(this.getRoot())
             }
         }
+
+
+16: **** Framework: Formátování stylů *****************************************************
+*****************************************************************************************
+
+1. do třídy Excel ve funkci getRoot přidáme odkaz na třídu Excel
+   $root.classList.add('excel')
+
+         export class Excel {
+             constructor(selector, options) {
+                 this.$el = document.querySelector(selector)
+                 this.components = options.components || []
+             }
+
+             getRoot() {
+                 const $root = document.createElement('div')
+                 $root.classList.add('excel')
+
+                 this.components.forEach(Component => {
+                     const component = new Component()
+                     $root.insertAdjacentHTML('beforeend', component.toHTML())
+                 })
+                 return $root
+             }
+
+             render() {
+
+                 this.$el.append(this.getRoot())
+             }
+         }
+
+2. přidání statických tříd "static className = 'excel-xxx'"
+
+    Do tříd Header, Toolbar, Formula a Table dodáme náze třídy jako 'static className',
+    statika umožní využít třídy 'className' aniž bychom museli vytvářet jejich instance.
+
+    Header.js:
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+
+        export class Header extends ExcelComponent {
+            static className = 'excel__header'
+            toHTML() {
+                return '<h1>Header</h1>'
+            }
+        }
+
+    Toolbar.js:
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+
+        export class Toolbar extends ExcelComponent {
+            static className = 'excel__toolbar'
+            toHTML() {
+                return '<h1>Toolbar</h1>'
+            }
+        }
+
+    Formula.js:
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+
+        export class Formula extends ExcelComponent {
+            static className = 'excel__formula'
+
+            toHTML() {
+                return '<h1>Formula</h1>'
+            }
+        }
+
+
+    Table.js:
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+
+        export class Table extends ExcelComponent {
+            static className = 'excel__table'
+            toHTML() {
+                return '<h1>Table</h1>'
+            }
+        }
+
+
+3. Přidání pluginu pro babel do webpack.config.js a instalace @babel/plugin-proposal-class-properties
+    Bohužel synstaxe statických tříd ještě není součástí normy, a Babel ji implicitně
+    nepodporuje. V chybovém hlášení je i následující doporučeni:
+
+        Add @babel/plugin-proposal-class-properties (https://git.io/vb4SL)
+        to the 'plugins' section of your Babel config to enable transformation.
+
+  3.1  do webpack.config.js v popisu loaderů pro balbel přidáme
+        plugins: ['@babel/plugin-proposal-class-properties']
+
+        popis jsLoaders ve webpack.config.js se změní z:
+
+            const jsLoaders = () =>{
+                const loaders = [{
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env'],
+                    }
+                }]
+                if (isDev) {
+                    loaders.push('eslint-loader')
+                }
+                return loaders
+            }
+
+        na:
+
+            const jsLoaders = () =>{
+                    const loaders = [{
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env'],
+                            plugins: ['@babel/plugin-proposal-class-properties']
+                        }
+                    }]
+                    if (isDev) {
+                        loaders.push('eslint-loader')
+                    }
+                    return loaders
+                }
+
+    3.2 Instalace pluginu pro npm (popdána na https://git.io/vb4S):
+
+            npm install --save-dev @babel/plugin-proposal-class-properties
+
+4. otestovnání výsledku:
+
+    nyní se v oknu terminálu prohlížeče tvoří struktura:
+
+    <div id="app">
+      <div class="excel">
+         <h1>Header</h1>
+         <h1>Toolbar</h1>
+         <h1>Formula</h1>
+         <h1>Table</h1>
+      </div>
+    </div>
+
+4. změníme definici getRoot v třídě Excel na:
+
+    export class Excel {
+        constructor(selector, options) {
+            this.$el = document.querySelector(selector)
+            this.components = options.components || []
+        }
+
+        getRoot() {
+            const $root = document.createElement('div')
+            $root.classList.add('excel')
+
+            this.components.forEach(Component => {
+                const $el = document.createElement('div')
+                $el.classList.add(Component.className)
+                const component = new Component()
+                $el.innerHTML=component.toHTML()
+                $root.append($el)
+                //$root.insertAdjacentHTML('beforeend', component.toHTML())
+            })
+            return $root
+        }
+
+        render() {
+            this.$el.append(this.getRoot())
+        }
+    }
+
+    nyní se v oknu terminálu prohlížeče tvoří struktura:
+
+    <div id="app">
+      <div class="excel">
+        <div class="excel_header"
+          <h1>Header</h1>
+        </div>
+        <div class="excel_toolbar>
+          <h1>Toolbar</h1>
+        </div>
+        <div class="excel_formula>
+          <h1>Formula</h1>
+        </div>
+        <div class="excel_table>
+          <h1>Table</h1>
+        </div>
+      </div>
+    </div>
+
+5. Změníme změníme funci toHTML() která bude vracet příslušné html šablonky v
+   třídách Header, Toolbar, Formula a Table (strukturu šablonek zkopírujeme ze souboru
+   ./src/assets/excel.html, který jsme vytvářeli při definici kaskádových stylů.
+
+   5.1 Header.js:
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+        export class Header extends ExcelComponent {
+            static className = 'excel__header'
+            toHTML() {
+                const contentHTML= `
+                    <input type ="text" class="input" value="Nová tabulka" />
+                    <div>
+                        <div class="button">
+                            <i class="material-icons">delete</i>
+                        </div>
+                        <div class="button">
+                            <i class="material-icons">exit_to_app</i>
+                        </div>
+                    </div>
+        `
+                return contentHTML
+            }
+        }
+
+   5.2 Toolbar.js:
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+        export class Toolbar extends ExcelComponent {
+            static className = 'excel__toolbar'
+            toHTML() {
+                const contentHTML= `
+                    <div class="button">
+                        <i class="material-icons">format_align_left</i>
+                    </div>
+                    <div class="button">
+                        <i class="material-icons">format_align_center</i>
+                    </div>
+                    <div class="button">
+                        <i class="material-icons">format_align_right</i>
+                    </div>
+                    <div class="button">
+                        <i class="material-icons">format_bold</i>
+                    </div>
+                    <div class="button">
+                        <i class="material-icons">format_italic</i>
+                    </div>
+                    <div class="button">
+                        <i class="material-icons">format_underlined</i>
+        `
+                return contentHTML
+            }
+        }
+
+
+   5.3 Formula.js:
+
+       import {ExcelComponent} from '@core/ExcelComponent';
+       export class Formula extends ExcelComponent {
+           static className = 'excel__formula'
+           toHTML() {
+               const contentHTML= `
+                   <div class="info">fx</div>
+                   <div class="input" contenteditable="true" spellcheck="false"></div>
+       `
+               return contentHTML
+           }
+       }
+
+    5.4 Table.js:
+
+       import {ExcelComponent} from '@core/ExcelComponent';
+       export class Table extends ExcelComponent {
+           static className = 'excel__table'
+           toHTML() {
+               const contentHTML= `
+
+                   <div class="row">
+                       <div class="row-info">
+                       </div>
+                       <div class="row-data">
+                           <div class="column">
+                               A
+                           </div>
+                           <div class="column">
+                               B
+                           </div>
+                           <div class="column">
+                               C
+                           </div>
+                           <div class="column">
+                               D
+                           </div>
+                           <div class="column">
+                               E
+                           </div>
+                           <div class="column">
+                               F
+                           </div>
+                       </div>
+                   </div>
+                   <div class="row">
+                       <div class="row-info">
+                           1
+                       </div>
+                       <div class="row-data">
+                           <div class="cell selected" contenteditable="true">A1</div>
+                           <div class="cell" contenteditable="true">B2</div>
+                           <div class="cell" contenteditable="true">C3</div>
+                       </div>
+                   </div>
+                   <div class="row">
+                       <div class="row-info">
+                           2
+                       </div>
+                       <div class="row-data">
+                           <div class="cell" contenteditable="true">A1</div>
+                           <div class="cell" contenteditable="true">B2</div>
+                           <div class="cell" contenteditable="true">C3</div>
+                       </div>
+                   </div>
+       `
+               return contentHTML
+           }
+       }
+
+6. Otestujeme - vrací strukturu stránky, která je identická s tou, kterou jsme vytbářeli
+   při definici kaskádových stylů - nyní je ale vytvářena čitým javascriptem.
+
+7. ve složce ./src/core vytvoříme soubor dom.js s třídou Dom pro zjednodušení práce s
+   DOM:
+
+        class Dom {
+        }
+
+        export function $() {
+            return new Dom()
+        }
+
+        $.create=(tagName, classes='')=>{
+            const el = document.createElement(tagName)
+            if (classes) {
+                el.classList.add(classes)
+            }
+            return el
+        }
+
+
+8. Optimalizace kódu
+  Vytvořenou třídu Dom využijeme ve třidě Excel. Přepíšeme soubor excel.js
+  (./src/components/excel.js):
+
+        import {$} from '@core/dom'
+
+        export class Excel {
+            constructor(selector, options) {
+                this.$el = document.querySelector(selector)
+                this.components = options.components || []
+            }
+
+            getRoot() {
+                const $root =$.create('div', 'excel')
+                // const $root = document.createElement('div')
+                // $root.classList.add('excel')
+
+                this.components.forEach(Component => {
+                    // const $el = document.createElement('div')
+                    // $el.classList.add(Component.className)
+                    const $el =$.create('div', Component.className)
+                    const component = new Component()
+                    $el.innerHTML=component.toHTML()
+                    $root.append($el)
+                    //$root.insertAdjacentHTML('beforeend', component.toHTML())
+                })
+                return $root
+            }
+
+            render() {
+                this.$el.append(this.getRoot())
+            }
+        }
+
