@@ -2024,3 +2024,60 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
             }
         }
 
+  9. Zavedení odkazů instanci komponent na třídu Dom Listener.
+
+
+          export class DomListener {
+              constructor($root) {
+                  if (!$root) {
+                      throw new Error(`No $root provided for DomListener!`)
+                  }
+                  this.$root = $root
+                  console.log( 'constructor from class DomListener', this.$root)
+              }
+          }
+
+   v konstruktoru dostává odkazy na objekty, s nimiž si bude posílat zprávy
+
+    Třida DomListener je kořenovou třídou potomků:
+    DomListener ->ExcelComponent ->(Header, Toolbar, Formula, Table)
+
+    UML diagram viz:
+    https://drive.google.com/file/d/1wsYWiEdPMsi785Vd38r-guqaoNHexvTb/view?usp=sharing
+
+    Třída Excel dostává odkazy na komponenty (Header, Toolbar, Formula, Table) při generování
+    instancí komponent ve funkci getRoot() v příkazu:
+
+                 const component = new Component()
+
+    Pokud do konstruktoru zavedeme proměnnou s odkazem na zpracovávaný objekt
+
+                const component = new Component($el)
+
+    a přepíšeme proto třídu Excel v souboru excel.js:
+
+    import {$} from '@core/dom'
+    export class Excel {
+        constructor(selector, options) {
+            this.$el = document.querySelector(selector)
+            this.components = options.components || []
+        }
+        getRoot() {
+            const $root =$.create('div', 'excel')
+            this.components.forEach(Component => {
+                const $el =$.create('div', Component.className)
+
+                //Volání konstruktoru s parametrem $el se řetězcem volání
+                // konstruktorů //předka nakonec předá do konstruktoru třídy
+                // DomListener:
+                const component = new Component($el)
+
+                $el.innerHTML=component.toHTML()
+                $root.append($el)
+            })
+            return $root
+        }
+        render() {
+            this.$el.append(this.getRoot())
+        }
+    }

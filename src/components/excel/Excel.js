@@ -15,7 +15,12 @@ export class Excel {
             // const $el = document.createElement('div')
             // $el.classList.add(Component.className)
             const $el =$.create('div', Component.className)
-            const component = new Component()
+
+            //Volání konstruktoru s parametrem $el se řetězcem volání
+            // konstruktorů //předka nakonec předá do konstruktoru třídy
+            // DomListener:
+            const component = new Component($el)
+
             $el.innerHTML=component.toHTML()
             $root.append($el)
             //$root.insertAdjacentHTML('beforeend', component.toHTML())
