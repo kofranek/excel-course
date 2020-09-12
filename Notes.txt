@@ -1659,8 +1659,118 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
 16: **** Framework: Formátování stylů *****************************************************
 *****************************************************************************************
 
+-----------------------------------------------------------------------
+element.querySelector ()
+
+    příklad použití:
+
+        JavaScript:
+            var baseElement = document.querySelector("p");
+            document.getElementById("output").innerHTML =
+              (baseElement.querySelector("div span").innerHTML);
+
+        html:
+            <div>
+              <h5>Original content</h5>
+              <p>
+                inside paragraph
+                <span>inside span</span>
+                inside paragraph
+              </p>
+            </div>
+            <div>
+              <h5>Output</h5>
+              <div id="output"></div>
+            </div>
+
+
+        výsledek:
+
+            Original content
+            inside paragraph inside span inside paragraph
+
+            Output
+            inside span
+-------------------------------------------------------------------------
+let element = document.createElement(tagName[, options]);
+
+    příklad použití:
+
+        html:
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>||Working with elements||</title>
+            </head>
+            <body>
+              <div id="div1">The text above has been created dynamically.</div>
+            </body>
+            </html>
+
+        JavaScript
+
+            document.body.onload = addElement;
+
+            function addElement () {
+              // create a new div element
+              const newDiv = document.createElement("div");
+
+              // and give it some content
+              const newContent = document.createTextNode("Hi there and greetings!");
+
+              // add the text node to the newly created div
+              newDiv.appendChild(newContent);
+
+              // add the newly created element and its content into the DOM
+              const currentDiv = document.getElementById("div1");
+              document.body.insertBefore(newDiv, currentDiv);
+            }
+
+        Výsledek:
+            Hi there and greetings!
+            The text above has been created dynamically.
+-----------------------------------------------------------------------------
+element.insertAdjacentHTML(position, text);
+
+        Parametry
+        position
+        A DOMStringpředstavující pozici vzhledem k element; musí být jeden z následujících řetězců:
+        'beforebegin': Před elementsamotným.
+        'afterbegin': Jen uvnitř element, před svým prvním dítětem.
+        'beforeend': Jen uvnitř element, po svém posledním dítěti.
+        'afterend': Po elementsobě.
+
+        <!-- beforebegin -->
+        <p>
+          <!-- afterbegin -->
+          foo
+          <!-- beforeend -->
+        </p>
+        <!-- afterend -->
+------------------------------------------------------------------
+element.classList
+
+    příklad použití:
+
+        const div = document.createElement('div');
+        div.className = 'foo';
+
+        // our starting state: <div class="foo"></div>
+        console.log(div.outerHTML);
+
+        // use the classList API to remove and add classes
+        div.classList.remove("foo");
+        div.classList.add("anotherclass");
+
+        // <div class="anotherclass"></div>
+        console.log(div.outerHTML);
+
+------------------------------------------------------
+-------------------------------------------------------
 1. do třídy Excel ve funkci getRoot přidáme odkaz na třídu Excel
    $root.classList.add('excel')
+
+
 
          export class Excel {
              constructor(selector, options) {
@@ -1670,7 +1780,7 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
 
              getRoot() {
                  const $root = document.createElement('div')
-                 $root.classList.add('excel')
+                 $root.classList.add('excel') //přidáno!!!
 
                  this.components.forEach(Component => {
                      const component = new Component()
@@ -1955,8 +2065,7 @@ excel.html, kam přeneseme dosavadní obsah index.html (a tím tam uložíme sty
                    </div>
                    <div class="row">
                        <div class="row-info">
-                           2
-                       </div>
+                           </div>
                        <div class="row-data">
                            <div class="cell" contenteditable="true">A1</div>
                            <div class="cell" contenteditable="true">B2</div>

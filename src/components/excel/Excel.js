@@ -7,7 +7,8 @@ export class Excel {
     }
 
     getRoot() {
-        const $root =$.create('div', 'excel')
+        const $root = $.create('div', 'excel')
+        // console.log('form getRoot $root', $root)
         // const $root = document.createElement('div')
         // $root.classList.add('excel')
 
@@ -30,5 +31,8 @@ export class Excel {
 
     render() {
         this.$el.append(this.getRoot())
+
+        console.log('this.getRoot()=', this.getRoot())
+        console.log('this.$el=', this.$el)
     }
 }
