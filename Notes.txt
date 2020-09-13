@@ -2190,3 +2190,162 @@ element.classList
             this.$el.append(this.getRoot())
         }
     }
+
+
+16: **** Framework: Třída pro práci s DOM *****************************************************
+***********************************************************************************************
+
+původní @core/dom.js:
+
+        class Dom {
+        }
+
+        export function $() {
+            return new Dom()
+        }
+
+        $.create=(tagName, classes='')=>{
+            const el = document.createElement(tagName)
+            if (classes) {
+                el.classList.add(classes)
+            }
+            return el
+        }
+
+
+nový @core/dom.js:
+
+        class Dom {
+            constructor(selector) {
+                this.$el = typeof selector === 'string'
+                    ? document.querySelector(selector)
+                    : selector
+            }
+
+            html(html) {
+                if (typeof html === 'string') {
+                    this.$el.innerHTML=html
+                    return this
+                }
+                return this.$el.outerHTML.trim()
+            }
+
+            clear() {
+                this.html('')
+            }
+
+            get HTML() {
+                return this.$el.outerHTML.trim()
+            }
+
+            set HTML(html) {
+                this.$el.innerHTML = html
+            }
+
+            CLEAR() {
+                this.HTML=''
+                return this
+            }
+
+
+            //Element
+            append(node) {
+                if (node instanceof Dom) {
+                    node=node.$el
+                }
+                if (Element.prototype.append) {
+                    this.$el.append(node)
+                } else {
+                    this.$el.appendChild(node)
+                }
+                return this
+            }
+        }
+
+        export function $(selector) {
+            //vytváří instanci třídy Dom
+            return new Dom(selector)
+        }
+
+        $.create=(tagName, classes='')=>{
+            const el = document.createElement(tagName)
+            if (classes) {
+                el.classList.add(classes)
+            }
+            //return el
+            return $(el)
+        }
+
+
+původní @/components/excel.js:
+
+        import {$} from '@core/dom'
+
+        export class Excel {
+            constructor(selector, options) {
+                //this.$el = document.querySelector(selector)
+                this.$el=$(selector)
+                this.components = options.components || []
+            }
+
+            getRoot() {
+                const $root = $.create('div', 'excel')
+                // const $root = document.createElement('div')
+                // $root.classList.add('excel')
+
+                this.components.forEach(Component => {
+                    // const $el = document.createElement('div')
+                    // $el.classList.add(Component.className)
+                    const $el =$.create('div', Component.className)
+
+                    // Volání konstruktoru s parametrem $el se řetězcem volání
+                    // konstruktorů //předka nakonec předá do konstruktoru třídy
+                    // DomListener:
+                    // console.log('volám new Component($el=', $el, ')')
+                   const component = new Component($el)
+
+
+                    $el.innerHTML=component.toHTML()
+                    $root.append($el)
+                    //$root.insertAdjacentHTML('beforeend', component.toHTML())
+                })
+                return $root
+            }
+
+            render() {
+                this.$el.append(this.getRoot())
+
+                console.log('this.$el=', this.$el)
+            }
+        }
+
+nové @/components/excel.js:
+
+        import {$} from '@core/dom'
+
+        export class Excel {
+            constructor(selector, options) {
+                //this.$el = document.querySelector(selector)
+                this.$el = $(selector) //vytvoří instanci třídy Dom
+                this.components = options.components || []
+            }
+
+            getRoot() {
+                const $root = $.create('div', 'excel')
+                this.components.forEach(Component => {
+                    const $el =$.create('div', Component.className)
+                    const component = new Component($el)
+                    //$el.innerHTML=component.toHTML()
+                    //$el.html(component.toHTML())
+                    $el.HTML=component.toHTML()
+                    $root.append($el)
+                })
+                return $root
+            }
+
+            render() {
+                this.$el.append(this.getRoot())
+
+                console.log('this.$el=', this.$el)
+            }
+        }

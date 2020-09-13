@@ -11,14 +11,4 @@ const excel = new Excel('#app', {
      components: [Header, Toolbar, Formula, Table]
 })
 
-// import {$$} from './pokus.js'
-// const output1=$$()
-// const output2=$$.create('чушь', 'собачья')
-//
-// console.log(output1);
-// //фигня
-//
-// console.log(output2);
-// //чушь собачья
-
 excel.render()
