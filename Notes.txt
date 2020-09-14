@@ -2192,7 +2192,7 @@ element.classList
     }
 
 
-16: **** Framework: Třída pro práci s DOM *****************************************************
+17: **** Framework: Třída pro práci s DOM *****************************************************
 ***********************************************************************************************
 
 původní @core/dom.js:
@@ -2347,5 +2347,200 @@ nové @/components/excel.js:
                 this.$el.append(this.getRoot())
 
                 console.log('this.$el=', this.$el)
+            }
+        }
+18: **** Framework: Příprava struktury pro události *******************************************
+***********************************************************************************************
+
+@core/domListener.js původní:
+
+        export class DomListener {
+            constructor($root) {
+                try {
+                    if (!$root) {
+                        throw new Error(`No $root provided for DomListener!`)
+                    }
+                } catch (Error) {
+                    console.log('Error in DonListener:', Error)
+                }
+
+                this.$root = $root
+                console.log( 'constructor from DomListener: $root=', this.$root)
+            }
+
+        }
+
+@core/domListener.js nový:
+
+        export class DomListener {
+            constructor($root, listeners = []) {
+                try {
+                    if (!$root) {
+                        throw new Error(`No $root provided for DomListener!`)
+                    }
+                } catch (Error) {
+                    console.log('Error in DonListener:', Error)
+                }
+
+                this.$root = $root
+                this.listeners=listeners
+                console.log( 'constructor from DomListener: $root=', this.$root)
+                console.log( 'constructor from DomListener: listeners=', this.listeners)
+            }
+
+            initDOMListeners() {
+                console.log('DOMListener: this.listeners=', this.listeners)
+            }
+
+            removeDOMListeners() {
+
+            }
+        }
+
+@core/excelComponent původní:
+
+        import {DomListener} from '@core/DomListener';
+
+        export class ExcelComponent extends DomListener {
+            //vrací šablonu komponenty
+            toHTML() {
+                return ''
+            }
+        }
+
+@core/excelComponent nový
+přidán konstruktor a metoda init():
+
+        import {DomListener} from '@core/DomListener';
+
+        export class ExcelComponent extends DomListener {
+            constructor($root, options = {}) {
+                super($root, options.listeners)
+            }
+
+            //vrací šablonu komponenty
+            toHTML() {
+                return ''
+            }
+
+            init() {
+                this.initDOMListeners()
+            }
+        }
+
+
+@/components/Formula.js původní:
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+
+        export class Formula extends ExcelComponent {
+            static className = 'excel__formula'
+            toHTML() {
+                const contentHTML= `
+                    <div class="info">fx</div>
+                    <div class="input" contenteditable="true" spellcheck="false"></div>
+        `
+                return contentHTML
+            }
+        }
+
+@/components/Formula.js nový:
+dodán konstruktor a obslužná metoda onInput(event).
+Když se třída insancializuje, předá se nahoru dom element v $root a
+zaplní se pole listeners.
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+
+        export class Formula extends ExcelComponent {
+            static className = 'excel__formula'
+
+            constructor($root) {
+                super($root, {
+                    name: 'Formula',
+                    listeners: ['input']
+                })
+            }
+
+            toHTML() {
+                const contentHTML= `
+                    <div class="info">fx</div>
+                    <div class="input" contenteditable="true" spellcheck="false"></div>
+        `
+                return contentHTML
+            }
+
+            onInput(event) {
+                console.log('Formula: onInput', event)
+            }
+            //bude vždy dvojice 'název' v poli listeners
+            // a obslužná metoda onNázev(event)
+        }
+
+@/components/Excel,js původní:
+
+        import {$} from '@core/dom'
+
+        export class Excel {
+            constructor(selector, options) {
+                //this.$el = document.querySelector(selector)
+                this.$el = $(selector) //vytvoří instanci třídy Dom
+                this.components = options.components || []
+            }
+
+            getRoot() {
+                const $root = $.create('div', 'excel')
+                this.components.forEach(Component => {
+                    const $el =$.create('div', Component.className)
+                    const component = new Component($el)
+                    //$el.innerHTML=component.toHTML()
+                    //$el.html(component.toHTML())
+                    $el.HTML=component.toHTML()
+                    $root.append($el)
+                })
+                return $root
+            }
+
+            render() {
+                this.$el.append(this.getRoot())
+
+                console.log('this.$el=', this.$el)
+            }
+        }
+
+@/components/Excel,js nové:
+v getRoot() místo forEach použijeme map, výsledky instancí se poskládají do
+pole components, po vyrendrování se každá komponenta inicialituje -
+component.init() -> metoda init() je z třídy ExcelComponent ->
+a v metode init() se zavolá initDOMListeners() z třídy DOMListeners:
+
+
+        import {$} from '@core/dom'
+
+        export class Excel {
+            constructor(selector, options) {
+                //this.$el = document.querySelector(selector)
+                this.$el = $(selector) //vytvoří instanci třídy Dom
+                this.components = options.components || []
+            }
+
+            getRoot() {
+                const $root = $.create('div', 'excel')
+                //this.components.forEach(Component => {
+                this.components = this.components.map(Component => {
+                    const $el =$.create('div', Component.className)
+                    const component = new Component($el)
+                    //$el.innerHTML=component.toHTML()
+                    //$el.html(component.toHTML())
+                    $el.HTML=component.toHTML()
+                    $root.append($el)
+                    return component
+                })
+                return $root
+            }
+
+            render() {
+                this.$el.append(this.getRoot())
+                this.components.forEach(component => component.init())
+                console.log('this.$el=', this.$el, 'this.components=', this.components)
             }
         }
