@@ -2357,7 +2357,6 @@ https://drive.google.com/file/d/1wsYWiEdPMsi785Vd38r-guqaoNHexvTb/view?usp=shari
 
 @core/domListener.js původní:
 
-
         export class DomListener {
             constructor($root) {
                 try {
