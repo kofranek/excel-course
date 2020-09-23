@@ -2232,6 +2232,7 @@ nový @core/dom.js:
 
             clear() {
                 this.html('')
+                return this  //aby bylo možné řetězit
             }
 
             get HTML() {
@@ -2273,7 +2274,7 @@ nový @core/dom.js:
                 el.classList.add(classes)
             }
             //return el
-            return $(el)
+            return $(el) //vrací instanci třídy Dom se všemi get HTML() a set HTML(html)
         }
 
 
@@ -2351,8 +2352,11 @@ nové @/components/excel.js:
         }
 18: **** Framework: Příprava struktury pro události *******************************************
 ***********************************************************************************************
+https://viewer.diagrams.net/?highlight=0000ff&edit=_blank&layers=1&nav=1#G1AOE9L3Q-qYlrDVDm2qahjgq60sSS5yuN
+https://drive.google.com/file/d/1wsYWiEdPMsi785Vd38r-guqaoNHexvTb/view?usp=sharing
 
 @core/domListener.js původní:
+
 
         export class DomListener {
             constructor($root) {
@@ -2388,7 +2392,7 @@ nové @/components/excel.js:
                 console.log( 'constructor from DomListener: listeners=', this.listeners)
             }
 
-            initDOMListeners() {
+            initDOMListeners() {  //volán init() z ExcelComponent a ta je volána z Excel.js
                 console.log('DOMListener: this.listeners=', this.listeners)
             }
 
@@ -2396,6 +2400,10 @@ nové @/components/excel.js:
 
             }
         }
+
+
+
+
 
 @core/excelComponent původní:
 
@@ -2544,3 +2552,182 @@ a v metode init() se zavolá initDOMListeners() z třídy DOMListeners:
                 console.log('this.$el=', this.$el, 'this.components=', this.components)
             }
         }
+
+Inicializace každé komponenty component.init() - viz výše volá v ExcelComponent:
+    init() {
+        this.initDOMListeners()
+    }
+a ta volá initDOMListeners() ve své rodičovské třídě DomListener.
+V DomListener jsou zatím prázdné initDOMListeners() a removeDOMListeners()
+
+
+20: **** Framework: Připojení posluchačů událostí *********************************************
+***********************************************************************************************
+
+zavedeme posluchače v třídě ExcelComponent:
+
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+
+        export class Formula extends ExcelComponent {
+            static className = 'excel__formula'
+
+            constructor($root) {
+                super($root, {
+                    name: 'Formula',
+                    listeners: ['input', 'click']
+                })
+            }
+
+            toHTML() {
+                const contentHTML= `
+                    <div class="info">fx</div>
+                    <div class="input" contenteditable="true" spellcheck="false"></div>
+        `
+                return contentHTML
+            }
+
+            onInput(event) {
+                console.log('Formula: onInput this.$root', this.$root)
+                console.log('Formula: onInput event', event)
+                console.log('Formula: inInput', event.target.textContent.trim())
+            }
+            //bude vždy dvojice 'název' v poli listeners
+            // a obslužná metoda onNázev(event)
+        }
+
+
+
+
+
+@core/DomListener.js původní:
+
+        export class DomListener {
+            constructor($root, listeners = []) {
+                try {
+                    if (!$root) {
+                        throw new Error(`No $root provided for DomListener!`)
+                    }
+                } catch (Error) {
+                    console.log('Error in DonListener:', Error)
+                }
+
+                this.$root = $root
+                this.listeners=listeners
+                console.log( 'constructor from DomListener: $root=', this.$root)
+                console.log( 'constructor from DomListener: listeners=', this.listeners)
+            }
+
+            initDOMListeners() {
+                console.log('DOMListener: this.listeners=', this.listeners)
+            }
+
+            removeDOMListeners() {
+
+            }
+        }
+
+@core/DomListener.js upravíme především initDomListener():
+a přidáme metody pro tvorbu názvů metod
+naázev události, název metody : input -> onInput
+využijeme capitalize v util a metodu getMethodName(eventName)
+DomListener upravený:
+
+        import {capitalize} from '@core/utils.js'
+        export class DomListener {
+            constructor($root, listeners = []) {
+                try {
+                    if (!$root) {
+                        throw new Error(`No $root provided for DomListener!`)
+                    }
+                } catch (Error) {
+                    console.log('Error in DonListener:', Error)
+                }
+
+                this.$root = $root
+                this.listeners=listeners
+                console.log( 'constructor from DomListener: $root=', this.$root)
+                console.log( 'constructor from DomListener: listeners=', this.listeners)
+            }
+
+            initDOMListeners() {
+                // console.log('DOMListener: this.listeners=', this.listeners,
+                //     'this.$root=', this.$root)
+                this.listeners.forEach(listener =>{
+                    const method = getMethodName(listener)
+                    if (!this[method]) {
+                        const name = this.name || ''
+                        throw new Error(
+                            `Method ${method} is not implemented in ${name} Component`
+                        )
+                    }
+                    this.$root.on(listener, this[method].bind(this)) //metodu on přidáme do Dom
+                    //voláme-li this[method] ztrácí se kontext this, proto
+                    //this[method].bind(this) aby např.
+                    // v metodě onInput ve Formula.js byl definován this.$root
+                    //jinak by this,root byl undefined
+                })
+            }
+
+
+            removeDOMListeners() {
+            }
+        }
+
+
+        function getMethodName(eventName) {
+            return 'on' + capitalize(eventName)
+        }
+        // input => onInput
+
+
+v core zavedeme utils.js:
+
+        //pure functions
+
+        export function capitalize(string) {
+            if (typeof string!=='string') {
+                return ''
+            }
+            return string[0].toUpperCase()+string.slice(1)
+            //charAt(0).toUpperCase()+string.slice(1)
+        }
+
+v Dom přidáme metodu on:
+
+        on(eventType, callback) {
+            console.log('ON eventType=', eventType, 'callback=', callback)
+            console.log('this.$el=', this.$el)
+            console.log('this=', this)
+            this.$el.addEventListener(eventType, callback)
+        }
+
+Oprava toho co Vladilen zapomněl:
+
+v kompponentě Formula je v konstruktoru položka name:
+
+    constructor($root) {
+        super($root, {
+            name: 'Formula',
+            listeners: ['input', 'click']
+        })
+    }
+
+která se v DomListener ztratí. Dodám proto do konstruktoru DomListener položku name:
+
+constructor($root, listeners = [], name) {
+        try {
+            if (!$root) {
+                throw new Error(`No $root provided for DomListener!`)
+            }
+        } catch (Error) {
+            console.log('Error in DonListener:', Error)
+        }
+
+        this.$root = $root
+        this.listeners=listeners
+        this.name=name
+
+a chybová hláška se vypisuje i s názvem komponenty:
+
+Uncaught Error: Method onClick is not implemented in Formula Component

@@ -15,6 +15,7 @@ class Dom {
 
     clear() {
         this.html('')
+        return this
     }
 
     get HTML() {
@@ -30,9 +31,16 @@ class Dom {
         return this
     }
 
+    on(eventType, callback) {
+        console.log('ON eventType=', eventType, 'callback=', callback)
+        console.log('this.$el=', this.$el)
+        console.log('this=', this)
+        this.$el.addEventListener(eventType, callback)
+    }
 
     //Element
     append(node) {
+        //console.log('append node=', node)
         if (node instanceof Dom) {
             node=node.$el
         }
@@ -57,5 +65,5 @@ $.create=(tagName, classes='')=>{
     }
     //return el
     return $(el)
-    //vrátí instanci třídy Dom
+    //vrátí instanci třídy Dom (se všemi settery a gettery html)
 }
