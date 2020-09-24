@@ -11,7 +11,7 @@ export class ExcelComponent extends DomListener {
     }
 
     init() {
-        console.log('volám this.initDOMListeners()')
+        //console.log('volám this.initDOMListeners()')
         this.initDOMListeners()
     }
 

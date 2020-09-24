@@ -12,8 +12,9 @@ export class DomListener {
         this.$root = $root
         this.listeners=listeners
         this.name=name
-        console.log( 'constructor from DomListener: $root=', this.$root)
-        console.log( 'constructor from DomListener: listeners=', this.listeners)
+        //console.log( 'constructor from DomListener: $root=', this.$root)
+        // eslint-disable-next-line max-len
+        //console.log( 'constructor from DomListener: listeners=', this.listeners)
     }
 
     initDOMListeners() {

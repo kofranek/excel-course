@@ -32,7 +32,8 @@ export class Excel {
     render() {
         this.$el.append(this.getRoot())
         this.components.forEach(component => component.init())
-        console.log('this.$el=', this.$el, 'this.components=', this.components)
+        // eslint-disable-next-line max-len
+        //console.log('this.$el=', this.$el, 'this.components=', this.components)
     }
 }
 

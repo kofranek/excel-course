@@ -50,7 +50,7 @@ class Dom {
     append(node) {
         //console.log('append node=', node)
         if (node instanceof Dom) {
-            node=node.$el
+            node=node.$el //node bude to co je připojené na $el
         }
         if (Element.prototype.append) {
             this.$el.append(node) //append umožní připojit více nodů
