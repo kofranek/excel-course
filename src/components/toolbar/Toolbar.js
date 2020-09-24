@@ -2,6 +2,14 @@ import {ExcelComponent} from '@core/ExcelComponent';
 
 export class Toolbar extends ExcelComponent {
     static className = 'excel__toolbar'
+
+    constructor($root) {
+        super($root, {
+            name: 'Toolbar',
+            listeners: ['click']
+        })
+    }
+
     toHTML() {
         const contentHTML= `
             <div class="button">
@@ -23,5 +31,9 @@ export class Toolbar extends ExcelComponent {
                 <i class="material-icons">format_underlined</i>
 `
         return contentHTML
+    }
+
+    onClick(event) {
+        console.log(event.target)
     }
 }

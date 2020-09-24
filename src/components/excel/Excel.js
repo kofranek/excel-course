@@ -13,6 +13,13 @@ export class Excel {
         this.components = this.components.map(Component => {
             const $el =$.create('div', Component.className)
             const component = new Component($el)
+            //DEBUG
+            if (component.name) { //když je přiřazeno name
+                window['c'+component.name]=component
+                //v prohližeči budu mít globální proměnou 'cFormula'
+                // odkazující na instanci komponenty Formula
+            }
+
             //$el.innerHTML=component.toHTML()
             //$el.html(component.toHTML())
             $el.HTML=component.toHTML()

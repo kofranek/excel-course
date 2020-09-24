@@ -1,5 +1,6 @@
 class Dom {
     constructor(selector) {
+        //this.$$listeners={}
         this.$el = typeof selector === 'string'
             ? document.querySelector(selector)
             : selector
@@ -32,10 +33,17 @@ class Dom {
     }
 
     on(eventType, callback) {
-        console.log('ON eventType=', eventType, 'callback=', callback)
-        console.log('this.$el=', this.$el)
-        console.log('this=', this)
         this.$el.addEventListener(eventType, callback)
+    }
+
+    // off(eventType) {
+    //     this.$el.removeEventListener(eventType, this.$$listeners[eventType])
+    //     console.log('OFF eventType=', eventType,
+    //         'callback=', this.$$listeners[eventType])
+    // }
+
+    off(eventType, callback) {
+        this.$el.removeEventListener(eventType, callback)
     }
 
     //Element

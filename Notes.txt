@@ -2730,3 +2730,210 @@ constructor($root, listeners = [], name) {
 a chybová hláška se vypisuje i s názvem komponenty:
 
 Uncaught Error: Method onClick is not implemented in Formula Component
+
+21: **** Framework: Odstranění posluchačů událostí *********************************************
+***********************************************************************************************
+
+v třídě Dom přidáme do konstruktoru pole this.$$listeners={}
+
+        class Dom {
+            constructor(selector) {
+                this.$$listeners={} //přidané pole
+                this.$el = typeof selector === 'string'
+                    ? document.querySelector(selector)
+                    : selector
+            }
+
+dále v třídě Dom schovám hodnotu callback podle klíče eventType:
+
+   on(eventType, callback) {
+                this.$$listeners [eventType] = callback
+                //do pole $$listeners přidáme hodnotu callback podle klíče eventType
+                this.$el.addEventListener(eventType, callback)
+            }
+
+v třídě DOm nakonec přidám metodu off:
+
+            off(eventType) {
+                this.$el.removeEventListener(eventType, this.$$listeners[eventType])
+            }
+
+třída Dom vypadá takto:
+
+        class Dom {
+            constructor(selector) {
+                this.$$listeners={} //přidané pole
+                this.$el = typeof selector === 'string'
+                    ? document.querySelector(selector)
+                    : selector
+            }
+
+
+            on(eventType, callback) {
+                this.$$listeners [eventType] = callback
+                //do pole $$listeners přidáme hodnotu callback podle klíče eventType
+                this.$el.addEventListener(eventType, callback)
+            }
+
+            off(eventType) {
+                this.$el.removeEventListener(eventType, this.$$listeners[eventType])
+            }
+
+            //Element
+            append(node) {
+                //console.log('append node=', node)
+                if (node instanceof Dom) {
+                    node=node.$el
+                }
+                if (Element.prototype.append) {
+                    this.$el.append(node) //append umožní připojit více nodů
+                } else {
+                    this.$el.appendChild(node) //připojí jen jeden nod
+                }
+                return this
+            }
+        }
+
+        export function $(selector) {
+            //vytváří instanci třídy Dom
+            return new Dom(selector)
+        }
+
+        $.create=(tagName, classes='')=>{
+            const el = document.createElement(tagName)
+            if (classes) {
+                el.classList.add(classes)
+            }
+            //return el
+            return $(el)
+            //vrátí instanci třídy Dom (se všemi settery a gettery html)
+        }
+
+
+
+naprogramuju metodu removeDomListeners - a mi bude procházet
+všechny listenery a na každý mi zavolá kořenovou metodu off
+
+    removeDOMListeners() {
+        this.listeners.forEach(listener =>{
+            this.$root.off(listener)
+        })
+
+v třídě ExcelComponent přidám metodu destroy():
+
+    destroy() {
+        this.removeDOMListeners()
+    }
+
+
+V komponentš Excel upravím pro testování metodu getRoot():
+
+        getRoot() {
+            const $root = $.create('div', 'excel')
+            //this.components.forEach(Component => {
+            this.components = this.components.map(Component => {
+                const $el =$.create('div', Component.className)
+                const component = new Component($el)
+                //DEBUG ********
+                if (component.name) { //když je přiřazeno name
+                    window['c'+component.name]=component
+                    //v prohližeči budu mít globální proměnou 'cFormula'
+                    // odkazující na instanci komponenty Formula
+                }
+                //End DEBUG **********
+
+                //$el.innerHTML=component.toHTML()
+                //$el.html(component.toHTML())
+                $el.HTML=component.toHTML()
+                $root.append($el)
+                return component
+            })
+            return $root
+        }
+
+otestuju v prohlížeči - když zavolám cFormula.destroy()
+zastaví se poslouchání posluchačů
+
+elegantnější řešení:
+v tříde DOM
+
+    zrušíme v konstruktoru položku $$listener
+
+    přepíšeme on (bez $$listeners)
+
+           on(eventType, callback) {
+               console.log('ON eventType=', eventType, 'callback=', callback)
+               console.log('this.$el=', this.$el)
+               console.log('this=', this)
+               //this.$$listeners [eventType] = callback
+               this.$el.addEventListener(eventType, callback)
+           }
+    a třída off bude jednodušší:
+
+            off(eventType, callback) {
+                this.$el.removeEventListener(eventType, callback)
+            }
+
+V DomListener:
+
+    upravím initDomListener
+    příkazem:
+    this[method]= this[method].bind(this)
+    propojím this[method] se svým kontextem
+    a to pak využiju v removeDomListener:
+
+            initDOMListeners() {
+                // console.log('DOMListener: this.listeners=', this.listeners,
+                //     'this.$root=', this.$root)
+                this.listeners.forEach(listener =>{
+                    const method = getMethodName(listener)
+                    if (!this[method]) {
+                        const name = this.name || ''
+                        throw new Error(
+                            `Method ${method} is not implemented in ${name} Component`
+                        )
+                    }
+
+                    //this.$root.on(listener, this[method].bind(this))
+
+                    this[method]= this[method].bind(this)
+                    //this[method] bude zabindovaný na svůj vlastní kontext
+                    this.$root.on(listener, this[method])
+                })
+            }
+
+            // removeDOMListeners() {
+            //     this.listeners.forEach(listener =>{
+            //         this.$root.off(listener)
+            //     })
+
+            removeDOMListeners() {
+                this.listeners.forEach(listener =>{
+                    const method = getMethodName(listener)
+                    this.$root.off(listener, this[method])
+                })
+            }
+        }
+
+Otestujeme si to na třídě Toolbar, pam přidáme konstruktor,
+ posluchače 'click' a metodu onCLick
+
+
+
+        export class Toolbar extends ExcelComponent {
+            static className = 'excel__toolbar'
+
+            constructor($root) {
+                super($root, {
+                    name: 'Toolbar',
+                    listeners: ['click']
+                })
+            }
+            .....
+            .....
+            onClick(event) {
+                console.log(event.target)
+            }
+        }
+
+otestujeme a vidíme, že to chodí
