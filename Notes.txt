@@ -3048,3 +3048,101 @@ nahradili elegantnější voláním funkcí (možná elegantnější ale pro mn�
 Nyní se tvoří první řádek a a první sloupec tabulky, nyní je potřeba vytvořit zbytek tabulky
 
 
+23: **** Framework: Sestavení tabulky. Buňky *********************************************
+***********************************************************************************************
+
+obdobně jako hlavičku uděláme buňky table.template.js vypadá nyní takto:
+
+        const CODES = {
+            A: 65,
+            Z: 90
+        }
+
+        function toCell() {
+            return `
+              <div class="cell" contenteditable="true"></div>
+            `
+        }
+
+
+        function toColumn(col) {
+            return `
+              <div class="column">${col}</div>
+            `
+        }
+
+        function createRow(index='', content='') {
+            return `
+              <div class="row">
+                  <div class="row-info">${index}</div>
+                  <div class="row-data">${content}</div>
+                </div>
+            `
+        }
+
+        export function createTable(rowCount=15) {
+            const colsCount = CODES.Z-CODES.A+1
+            const rows = []
+
+            // méně elegantní řešení
+            // const cols = new Array(colsCount)
+            //     .fill('*')
+            //     .map((el,index)=>{
+            //         return String.fromCharCode(CODES.A+index)
+            //     })
+            //     .map((el)=>{
+            //         return toColumn(el)
+            //     })
+            //     .join('')
+
+            function toChar(_, index) {
+                return String.fromCharCode(CODES.A+index)
+            }
+
+            const cols = new Array(colsCount)
+                .fill('')
+                .map(toChar)
+                .map(toColumn)
+                .join('')
+
+            rows.push(createRow('', cols))
+
+
+            // moje řešení:
+            // const cells=new Array(colsCount)
+            //     .fill('')
+            //     // .map((el)=>{
+            //     //     return toCell()
+            //     // })
+            //     .map(toCell)
+            //     .join('')
+            //
+            // for (let i=0; i<rowCount; i++) {
+            //     rows.push(createRow(i+1, cells))
+            // }
+
+            for (let i=0; i<rowCount; i++) {
+                const cells=new Array(colsCount)
+                    .fill('')
+                    .map(toCell)
+                    .join('')
+                rows.push(createRow(i+1, cells))
+            }
+
+            return rows.join('')
+        }
+
+Protože createTable má počet řádek jako parametr, můžeme vytvořit
+třeba stobuňkovou tabulku (zatím ale necháme 20):
+
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+        import {createTable} from '@/components/table/table.tempate';
+
+        export class Table extends ExcelComponent {
+            static className = 'excel__table'
+            toHTML() {
+                return createTable(20)
+            }
+        }
+
