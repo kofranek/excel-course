@@ -3183,3 +3183,43 @@ Framework: Finish base framework functional udělán pullrequest
 25: **** Table resize: Algortitmy a události *********************************************
 **************************************************************************
  v GITU přepneme ne na novou větev resize
+
+události jsou vžd vázány k rootu DomListeru a a rozlišují se podle event.target
+
+import {ExcelComponent} from '@core/ExcelComponent';
+import {createTable} from '@/components/table/table.tempate';
+
+zkoušíme na tabulce:
+
+    export class Table extends ExcelComponent {
+        static className = 'excel__table'
+
+        constructor($root) {
+            super($root, {
+                name: 'Table',
+                listeners: ['click', 'mousedown', 'mousemove', 'mouseup']
+            })
+        }
+
+
+        toHTML() {
+            return createTable(20)
+        }
+
+        onClick(event) {
+            console.log('click', event.target);
+        }
+
+        onMousedown(event) {
+            console.log('mousedown', event.target);
+        }
+
+        onMousemove() {
+            console.log('mousemove');
+        }
+
+        onMouseup() {
+            console.log('mouseup');
+        }
+    }
+

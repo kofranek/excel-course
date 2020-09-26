@@ -26,20 +26,20 @@ export class Formula extends ExcelComponent {
     //bude vždy dvojice 'název' v poli listeners
     // a obslužná metoda onNázev(event)
 
-    removeInput(event) {
-        console.log('Formula: removeInput this.$root', this.$root)
-        console.log('Formula: removeInput event=', event)
-        removeEventListener('input', this.onInput)
-    }
+    // removeInput(event) {
+    //     console.log('Formula: removeInput this.$root', this.$root)
+    //     console.log('Formula: removeInput event=', event)
+    //     removeEventListener('input', this.onInput)
+    // }
 
     onClick(event) {
         console.log('onClick event=', event)
-        this.removeInput('inputEvent')
+        //this.removeInput('inputEvent')
     }
 
-    removeClick(event) {
-        console.log('removeClick')
-    }
+    // removeClick(event) {
+    //     console.log('removeClick')
+    // }
 }
 
 

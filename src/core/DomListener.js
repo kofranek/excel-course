@@ -18,10 +18,11 @@ export class DomListener {
     }
 
     initDOMListeners() {
-        // console.log('DOMListener: this.listeners=', this.listeners,
-        //     'this.$root=', this.$root)
+         // console.log('DOMListener: this.listeners=', this.listeners,
+         //     'this.$root=', this.$root)
         this.listeners.forEach(listener =>{
             const method = getMethodName(listener)
+            //console.log('method=', method)
             if (!this[method]) {
                 const name = this.name || ''
                 throw new Error(
