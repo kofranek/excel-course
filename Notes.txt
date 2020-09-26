@@ -3146,3 +3146,18 @@ třeba stobuňkovou tabulku (zatím ale necháme 20):
             }
         }
 
+24: **** Framework: GIT Flow *********************************************
+**************************************************************************
+
+zakončujeme blok Framework
+
+v GITu to máme ukládané ve větvi framework-start
+
+(pozn. jiného účatníka kurzu: Если у кого-то версия WebStorm 2020.1
+(как у меня), то чтобы увидеть вкладку Local Changes надо зайти
+в Settings/Version control/Commit и снять галку у параметра
+Use non-modal commit interface.)
+
+Vladilen to popisuje jak to dělat z terminálu:
+
+git add .
