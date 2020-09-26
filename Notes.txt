@@ -3160,4 +3160,20 @@ Use non-modal commit interface.)
 
 Vladilen to popisuje jak to dělat z terminálu:
 
+přidáme všechny soubory
+
 git add .
+
+v excel.js zakomentujeme DEBUG aby to nestrašilo
+
+            // //DEBUG
+            // if (component.name) { //když je přiřazeno name
+            //     window['c'+component.name]=component
+            //     //v prohližeči budu mít globální proměnou 'cFormula'
+            //     // odkazující na instanci komponenty Formula
+            // }
+
+git commit -m "Finish base framework functional"
+
+git push -u origin framework-start
+
