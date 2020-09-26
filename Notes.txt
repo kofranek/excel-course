@@ -3177,3 +3177,4 @@ git commit -m "Finish base framework functional"
 
 git push -u origin framework-start
 
+Framework: Finish base framework functional udělán pullrequest
