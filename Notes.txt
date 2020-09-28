@@ -3223,3 +3223,202 @@ zkoušíme na tabulce:
         }
     }
 
+26: **** Table resize: vytvoření prvku pro resize ********************************************
+**************************************************************************
+
+V tříde Table odstraníme všechny události
+tj.
+   onClick(event)
+   onMousedown(event)
+   onMousemove()
+   onMouseup()
+
+
+v talbe.template.js přidáme do funkce toColumn element
+<div class="col-resize"></div>:
+
+
+        function toColumn(col) {
+            return `
+              <div class="column">
+                  ${col}
+                  <div class="col-resize"></div>
+              </div>
+            `
+        }
+
+
+v table.scss vytvoříme formátování tohoto elementu:
+
+
+  .col-resize{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 2px;
+    background: $primary-color;
+
+  }
+
+barvu objektu speciofikujeme ve _variables.scss
+
+        $primary-color:#3c74ff;
+
+do .column přidáme position:relative:
+
+    .column{
+      position: relative; //přídáno nyní
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f8f9fa;
+      min-width: 40px;
+      width: $cell-width;
+      border: 1px solid $border-color;
+      height: 100%;
+      border-top:none;
+      border-left: none;
+
+    }
+
+Chceme ale aby ty hranice byly vidět jennkdyž na ně dáváme kurzor.
+
+Proto v table-template.scss změníme definici .col-resize:
+
+      .col-resize{
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 4px;
+        background: $primary-color;
+        opacity:0;
+
+        &:hover {
+          opacity: 1
+        }
+
+změníme kurzor:
+
+      .col-resize{
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 4px;
+        background: $primary-color;
+        opacity:0;
+
+        &:hover {
+          opacity: 1;
+          cursor: col-resize; //přidání specifického kurzoru
+        }
+
+
+resize doplníme i do provního řádku row-info, kde tiskneme číslo řádku:
+
+proto změníme funkci createRow z:
+
+        function createRow(index='', content='') {
+            return `
+              <div class="row">
+                  <div class="row-info">${index}</div>
+                  <div class="row-data">${content}</div>
+                </div>
+            `
+        }
+na:
+        function createRow(index='', content='') {
+            return `
+              <div class="row">
+                  <div class="row-info">
+                    ${index}
+                    <div class="row-resize"></div>
+                  </div>
+                  <div class="row-data">${content}</div>
+                </div>
+            `
+        }
+
+
+v table.scss přidáme
+
+      .row-resize {
+        position: absolute;
+        right:0;
+        left:0;
+        bottom:0;
+        height: 4px;
+        background: $primary-color;
+        opacity:0;
+        &:hover {
+          opacity: 1;
+          cursor: row-resize;
+        }
+a do row-info přidáme osition: relative;
+
+          .row-info {
+            position: relative; //přidáno nyní
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: $info-cell-width;
+            height: 100%;
+            border: 1px solid $border-color;
+            background: #f8f9fa;
+            border-top: none;
+
+          }
+
+
+sjednotíme společná nastavení v col-resize a col-resize:
+
+
+          .col-resize, .row-resize{
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: $primary-color;
+            opacity:0;
+            &:hover {
+              opacity: 1;
+            }
+          }
+
+          .col-resize{
+            top: 0;
+            width: 4px;
+            &:hover {
+              cursor: col-resize;
+            }
+          }
+
+          .row-resize {
+            left:0;
+            height: 4px;
+            &:hover {
+              cursor: row-resize;
+            }
+          }
+
+
+resize tabulky nechceme začínat od hlavičky (index řádku nulový, předávaný
+do create row jako ''), proto v table.template.js změníme definici funkce
+createRow z:
+
+        function createRow(index='', content='') {
+            return `
+              <div class="row">
+                  <div class="row-info">
+                    ${index}
+                    <div class="row-resize"></div>
+                  </div>
+                  <div class="row-data">${content}</div>
+                </div>
+            `
+        }
+
+na:
+

@@ -11,7 +11,7 @@
     font-size: 18px;
   }
 
-  //pseudoselekor active i třída .active
+  //pseudoselektor active i třída .active
   &:active, &.active {
     color: $color;
   }
