@@ -3502,4 +3502,3 @@ a data-resize="col":
               </div>
             `
         }
-
