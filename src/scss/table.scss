@@ -11,6 +11,8 @@
 
 
   .row{
+    //position: relative;
+
     display: flex;
     flex-direction: row;
     min-height: 20px;
@@ -33,7 +35,6 @@
 
   .row-data {
     display: flex;
-
 
   }
 

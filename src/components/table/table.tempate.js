@@ -9,13 +9,22 @@ function toCell() {
     `
 }
 
+let RowCountSet = 15;
+let columnNumber = 0;
 
 function toColumn(col) {
+    if (col != '') {
+        columnNumber++
+    }
+
     return `
       <div class="column">
           ${col}
-          <div class="col-resize" data-resize="col"></div>
-      </div>
+          <div class="col-resize" 
+            data-resize="col" 
+            data-colnumber="${columnNumber}">
+          </div>
+      </div>      
     `
 }
 
@@ -35,6 +44,9 @@ function createRow(index='', content='') {
 }
 
 export function createTable(rowCount=15) {
+    // eslint-disable-next-line no-unused-vars
+    console.log('vytvářím tabulku');
+    RowCountSet=rowCount
     const colsCount = CODES.Z-CODES.A+1
     const rows = []
 
@@ -84,5 +96,35 @@ export function createTable(rowCount=15) {
     }
 
     return rows.join('')
+}
+
+
+export function resetColumnWidth(node, colnumber, width='120px') {
+    node.style.width=width
+
+    // console.log('node=', node)
+    // console.log('node.childNodes[0]=', node.childNodes[0].innerHTML)
+    // console.log('node.innerHTML=', node.innerHTML)
+    // node=node.parentNode.parentNode//<div class="row">
+    // console.log('node.parentNode.parentNode=', node)
+    // node=node.nextSibling.nextSibling
+    // console.log('node.nextSibling.nextSibling=', node)
+    // node=node.childNodes[3]
+    // console.log('node.childNodes[3]=', node)
+    // node=node.childNodes[colnumber*2-1]
+    // console.log('node.childNodes[colnumber*2-1]=', node)
+
+    for (let r=1; r<=RowCountSet; r++) {
+        node = node.parentNode.parentNode//<div class="row">
+        node = node.nextSibling.nextSibling
+        node = node.childNodes[3]
+        node = node.childNodes[colnumber * 2 - 1]
+        node.style.width = width
+    }
+}
+
+export function resetRowHeight(node, height='24px') {
+    node.style.height=height
+    createTable(RowCountSet)
 }
 
