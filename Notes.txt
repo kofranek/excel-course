@@ -3223,7 +3223,7 @@ zkoušíme na tabulce:
         }
     }
 
-26: **** Table resize: vytvoření prvku pro resize ********************************************
+26: **** Table resize: vytvoření prvku pro resize ************************
 **************************************************************************
 
 V tříde Table odstraníme všechny události
@@ -3421,4 +3421,85 @@ createRow z:
         }
 
 na:
+        function createRow(index='', content='') {
+            const resize = index
+                ? '<div class="row-resize" data-resize="row"></div>'
+                : ''
+            return `
+              <div class="row">
+                  <div class="row-info">
+                    ${index}
+                    ${resize}
+                  </div>
+                  <div class="row-data">${content}</div>
+                </div>
+            `
+        }
+
+27: **** Table resize: vyhledání prvků pro resize ************************
+**************************************************************************
+změny v Table.js:
+    v listeners zavedeme událost 'mousedown'
+    a vytvoříme jejího posluchače onMosedown:
+
+        import {ExcelComponent} from '@core/ExcelComponent';
+        import {createTable} from '@/components/table/table.tempate';
+
+        export class Table extends ExcelComponent {
+            static className = 'excel__table'
+
+            constructor($root) {
+                super($root, {
+                    name: 'Table',
+                    listeners: ['mousedown']
+                })
+            }
+
+
+            toHTML() {
+                return createTable(20)
+            }
+
+            onMousedown(event) {
+                //console.log(event.target.getAttribute('data-resize'))
+                //console.log(event.target.dataset);
+                if (event.target.dataset.resize) {
+                    console.log('Start resizing', event.target.dataset.resize);
+                }
+            }
+        }
+
+
+
+
+změny v table.template.js:
+
+    přidáme datové atributy k prvkům, které chceme dále zpracovávat
+    přidáme data-resize="row":
+
+        function createRow(index='', content='') {
+            const resize = index
+                ? '<div class="row-resize" data-resize="row"></div>'
+                : ''
+            return `
+              <div class="row">
+                  <div class="row-info">
+                    ${index}
+                    ${resize}
+                  </div>
+                  <div class="row-data">${content}</div>
+                </div>
+            `
+        }
+
+a data-resize="col":
+
+        function toColumn(col) {
+            return `
+              <div class="column">
+                  ${col}
+                  <div class="col-resize" data-resize="col"></div>
+              </div>
+            `
+        }
 
