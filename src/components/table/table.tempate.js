@@ -9,7 +9,7 @@ function toCell() {
     `
 }
 
-let RowCountSet = 15;
+let rowCountSet = 15;
 let columnNumber = 0;
 
 function toColumn(col) {
@@ -44,22 +44,9 @@ function createRow(index='', content='') {
 }
 
 export function createTable(rowCount=15) {
-    // eslint-disable-next-line no-unused-vars
-    console.log('vytvářím tabulku');
-    RowCountSet=rowCount
+    rowCountSet=rowCount //module variable rowCountSet
     const colsCount = CODES.Z-CODES.A+1
     const rows = []
-
-    // méně elegantní řešení
-    // const cols = new Array(colsCount)
-    //     .fill('*')
-    //     .map((el,index)=>{
-    //         return String.fromCharCode(CODES.A+index)
-    //     })
-    //     .map((el)=>{
-    //         return toColumn(el)
-    //     })
-    //     .join('')
 
     function toChar(_, index) {
         return String.fromCharCode(CODES.A+index)
@@ -74,19 +61,6 @@ export function createTable(rowCount=15) {
     rows.push(createRow('', cols))
 
 
-    // moje řešení:
-    // const cells=new Array(colsCount)
-    //     .fill('')
-    //     // .map((el)=>{
-    //     //     return toCell()
-    //     // })
-    //     .map(toCell)
-    //     .join('')
-    //
-    // for (let i=0; i<rowCount; i++) {
-    //     rows.push(createRow(i+1, cells))
-    // }
-
     for (let i=0; i<rowCount; i++) {
         const cells=new Array(colsCount)
             .fill('')
@@ -99,44 +73,43 @@ export function createTable(rowCount=15) {
 }
 
 
-export function resetColumnWidth(node, colnumber, width='120px') {
+export function resizeNode(node, mouseX, mouseY) {
+    let newWidth
+    let newHeight
+    if (node) {
+        if (node.dataset.resize) {
+            if (node.dataset.colnumber) {
+                newWidth = mouseX
+                    - node.parentNode.getBoundingClientRect().x
+                newWidth = Math.max(newWidth, 0)
+                resetColumnWidth(node.parentNode,
+                    node.dataset.colnumber,
+                    newWidth + 'px')
+            } else {
+                newHeight = mouseY
+                    - node.parentNode.getBoundingClientRect().y
+                newHeight = Math.max(newHeight, 0)
+                resetRowHeight(node.parentNode.parentNode,
+                    newHeight + 'px')
+            }
+        }
+    }
+}
+
+function resetColumnWidth(node, colnumber, width='120px') {
     node.style.width=width //header column width set
 
-    //let nd=undefined
-    // console.log('RowCountSet=', RowCountSet);
-    // console.log('node.childNodes=', node.childNodes)
-    // console.log('node.innerHTML=', node.innerHTML)
-    // nd=node.parentNode.parentNode
-    // console.log('nd=node.parentNode.parentNode=', nd)
-    // console.log('nd', nd)
-    // console.log('nd.nextSibling=', nd.nextSibling);
-    // nd=nd.nextSibling.nextSibling
-    // console.log('nd=nd.nextSibling.nextSibling=', nd)
-    // console.log('nd.childNodes=', nd.childNodes);
-    // nd=nd.childNodes[3]
-    // console.log('nd=nd.childNodes[3]=', nd)
-    // nd=nd.childNodes[colnumber*2-1]
-    // console.log('nd=nd.childNodes[colnumber*2-1]=', nd)
-
-    for (let r=0; r<RowCountSet; r++) {
-        //console.log('r=', r)
+    for (let r=0; r<rowCountSet; r++) {
         node = node.parentNode.parentNode//<div class="row">
-        //console.log('node.parentNode.parentNode=', node)
         node = node.nextSibling.nextSibling //next row
-        //console.log('node.nextSibling.nextSibling=', node)
         node = node.childNodes[3]
-        //childNodes=[text, div.row-info, text, div.row-data, text]
-        //console.log('node.childNodes[3]=', node)
         node = node.childNodes[colnumber * 2 - 1]
-        //childNodes= [text, div.cell, text, div.cell, ...text, div.cell]
-        //console.log('node.childNodes[colnumber * 2 - 1]=', node)
         node.style.width = width
-        //console.log('node.style.width=', node.style.width)
     }
 }
 
 export function resetRowHeight(node, height='24px') {
     node.style.height=height
-    createTable(RowCountSet)
+    createTable(rowCountSet)
 }
 
