@@ -100,26 +100,37 @@ export function createTable(rowCount=15) {
 
 
 export function resetColumnWidth(node, colnumber, width='120px') {
-    node.style.width=width
+    node.style.width=width //header column width set
 
+    let nd=undefined
+    console.log('RowCountSet=', RowCountSet);
     console.log('node=', node)
     console.log('node.childNodes[0]=', node.childNodes[0].innerHTML)
     console.log('node.innerHTML=', node.innerHTML)
-    node=node.parentNode.parentNode//<div class="row">
-    console.log('node.parentNode.parentNode=', node)
-    node=node.nextSibling.nextSibling
-    console.log('node.nextSibling.nextSibling=', node)
-    node=node.childNodes[3]
-    console.log('node.childNodes[3]=', node)
-    node=node.childNodes[colnumber*2-1]
-    console.log('node.childNodes[colnumber*2-1]=', node)
+    nd=node.parentNode.parentNode
+    console.log('nd=node.parentNode.parentNode=', nd)
+    console.log('nd', nd)
+    console.log('nd.nextSibling=', nd.nextSibling);
+    nd=nd.nextSibling.nextSibling
+    console.log('nd=nd.nextSibling.nextSibling=', nd)
+    console.log('nd.childNodes=', nd.childNodes);
+    nd=nd.childNodes[3]
+    console.log('nd=nd.childNodes[3]=', nd)
+    nd=nd.childNodes[colnumber*2-1]
+    console.log('nd=nd.childNodes[colnumber*2-1]=', nd)
 
-    for (let r=1; r<=RowCountSet; r++) {
+    for (let r=0; r<RowCountSet; r++) {
+        console.log('r=', r)
         node = node.parentNode.parentNode//<div class="row">
-        node = node.nextSibling.nextSibling
+        console.log('node.parentNode.parentNode=', node)
+        node = node.nextSibling.nextSibling //next row
+        console.log('node.nextSibling.nextSibling=', node)
         node = node.childNodes[3]
+        console.log('node.childNodes[3]=', node)
         node = node.childNodes[colnumber * 2 - 1]
+        console.log('node.childNodes[colnumber * 2 - 1]=', node)
         node.style.width = width
+        console.log('node.style.width=', node.style.width)
     }
 }
 
