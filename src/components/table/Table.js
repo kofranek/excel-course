@@ -24,11 +24,15 @@ export class Table extends ExcelComponent {
     }
 
     onMousemove(event) {
-        resizeNode(this.resizedNode, event.pageX, event.pageY)
+        if (this.resizedNode) {
+            resizeNode(this.resizedNode, event.pageX, event.pageY)
+        }
     }
 
     onMouseup(event) {
-        resizeNode(this.resizedNode, event.pageX, event.pageY)
-        this.resizedNode=undefined
+        if (this.resizedNode) {
+            resizeNode(this.resizedNode, event.pageX, event.pageY)
+            this.resizedNode=undefined
+        }
     }
 }
