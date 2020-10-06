@@ -19,6 +19,8 @@ export class Table extends ExcelComponent {
 
     onMousedown(event) {
         if (event.target.dataset.resize) {
+            console.log(event.target)
+            window.getSelection().empty()
             this.resizedNode=event.target
         }
     }
